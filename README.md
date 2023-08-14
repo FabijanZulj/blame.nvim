@@ -30,7 +30,8 @@ There are two modes:
 
 ## Configuration
 
-There are 2 fields you can configure by passing them to the `require('blame').setup({})` function:
+These are the fields you can configure by passing them to the `require('blame').setup({})` function:
 - `width` - number - fixed width of the window  (default: width of longest blame line + 8)
 - `date_format` - string - Pattern for the date (default: "%Y/%m/%d %H:%M")
+- `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file. (default : "right_align")
 

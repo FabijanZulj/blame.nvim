@@ -12,6 +12,7 @@ M.parse_porcelain = function(blame_porcelain)
 			break
 		end
 		if next_is_content then
+			all_lines[#all_lines]["content"] = entry
 			table.insert(all_lines, {})
 			next_is_content = false
 			goto continue

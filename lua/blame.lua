@@ -6,9 +6,11 @@ local highlights = require("blame.highlights")
 ---@class Config
 ---@field date_format string Format of the output date
 ---@field width number|nil Manual setup of window width
+---@field virtual_style "float"|"right_align"
 local config = {
 	date_format = "%Y/%m/%d %H:%M",
 	width = nil,
+	virtual_style = "right_align",
 }
 
 ---@class Blame

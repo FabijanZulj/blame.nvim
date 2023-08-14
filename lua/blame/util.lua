@@ -16,8 +16,8 @@ end
 M.longest_string_in_array = function(string_array)
 	local longest = 0
 	for _, value in ipairs(string_array) do
-		if string.len(value) > longest then
-			longest = string.len(value)
+		if vim.fn.strdisplaywidth(value) > longest then
+			longest = vim.fn.strdisplaywidth(value)
 		end
 	end
 	return longest

@@ -61,7 +61,6 @@ M.create_lines_with_padding = function(blame_lines, config)
 	local lines = vim.api.nvim_buf_get_lines(M.original_buffer, 0, -1, false)
 	local longest_line = util.longest_string_in_array(lines)
 
-	print("Longest line: " .. longest_line)
 	for i, value in ipairs(blame_lines) do
 		local hash = string.sub(value["hash"], 0, 8)
 		local is_not_commited = hash == "00000000"

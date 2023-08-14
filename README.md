@@ -3,10 +3,12 @@
 
 
 Window:
-<img width="1495" alt="window_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/6c00542a-1d4f-41fd-90da-ae54806bd998">
+<img width="1499" alt="window_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/3a3c0a87-8f6b-461a-9ea7-cd849c2de326">
+
 
 Virtual:
-<img width="1495" alt="virtual_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/c8cc5966-a384-45d0-bc34-99752734f745">
+<img width="1495" alt="virtual_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/8c17c8ae-901e-4183-ac73-c62bb4a259dc">
+
 
 _Same commits are highlighted in the same color_
 

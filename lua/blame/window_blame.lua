@@ -66,6 +66,7 @@ M.window_blame = function(blame_lines, config)
 	vim.api.nvim_set_current_win(M.original_window)
 	highlights.highlight_same_hash(M.blame_buffer)
 	vim.api.nvim_buf_set_option(M.blame_buffer, "modifiable", false)
+	vim.api.nvim_buf_set_option(M.blame_buffer, "spell", false)
 end
 
 ---Git show command done callback

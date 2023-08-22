@@ -21,8 +21,10 @@ _Same commits are highlighted in the same color_
 ```
 
 ## Usage
-The following command is used:
+The following commands are used:
 - `ToggleBlame [mode]` - Toggle the blame window or virtual text. If no mode is provided it opens the `window` type
+- `EnableBlame [mode]` - Enables the blame window or virtual text. If no mode is provided it opens the `window` type
+- `DisableBlame` - Disables the blame window or virtual text whichever is currently open
 
 There are two modes:
 - `window` - fugitive style window to the left of the window

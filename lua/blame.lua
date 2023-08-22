@@ -2,6 +2,7 @@ local virtual_blame = require("blame.virtual_blame")
 local window_blame = require("blame.window_blame")
 local blame_parser = require("blame.blame_parser")
 local highlights = require("blame.highlights")
+local git = require("blame.git")
 
 ---@class Config
 ---@field date_format string Format of the output date
@@ -22,6 +23,7 @@ local M = {}
 M.config = config
 ---@type string[]
 M.blame_lines = {}
+M.blame_nvim_augroup = vim.api.nvim_create_augroup("BlameNvim", { clear = false })
 
 ---@param args Config?
 M.setup = function(args)
@@ -49,7 +51,7 @@ local function done(blame_type)
 	end
 end
 
----Captures the raw porcelain formatted data returned frim git blame
+---Captures the raw porcelain formatted data returned from git blame
 ---@param _ any
 ---@param data string[]
 local function stdout(_, data)
@@ -70,18 +72,42 @@ local function toggle(blame_type)
 		end
 		return
 	end
-	local blame_command = "git --no-pager blame --line-porcelain " .. vim.api.nvim_buf_get_name(0)
-	vim.fn.jobstart(blame_command, {
-		cwd = vim.fn.getcwd(),
-		on_exit = done(blame_type),
-		on_stdout = stdout,
-		stdout_buffered = true,
-		--on_stderr = error,
-	})
+	git.blame(vim.api.nvim_buf_get_name(0), vim.fn.getcwd(), done(blame_type), stdout)
 end
 
-M.toggle = function(blame_type)
-	return toggle(blame_type["args"])
+---@param blame_type "window"|"virtual"|""
+local function enable(blame_type)
+	local is_window_open = window_blame.is_window_open()
+	local is_virtual_open = virtual_blame.nsId ~= nil
+
+	if is_window_open or is_virtual_open then
+		return
+	else
+		git.blame(vim.api.nvim_buf_get_name(0), vim.fn.getcwd(), done(blame_type), stdout)
+	end
+end
+
+local function disable()
+	local is_window_open = window_blame.is_window_open()
+	local is_virtual_open = virtual_blame.nsId ~= nil
+
+	if is_window_open then
+		window_blame.close_window()
+	elseif is_virtual_open then
+		virtual_blame.close_virtual()
+	end
+end
+
+M.toggle = function(arguments)
+	return toggle(arguments["args"])
+end
+
+M.enable = function(arguments)
+	return enable(arguments["args"])
+end
+
+M.disable = function()
+	return disable()
 end
 
 return M

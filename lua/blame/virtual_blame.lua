@@ -19,7 +19,7 @@ M.virtual_blame = function(blame_lines, config)
 	end
 
 	for _, line in pairs(lines) do
-		vim.api.nvim_buf_set_extmark(M.original_buffer, M.nsId, line["idx"], 0, {
+		vim.api.nvim_buf_set_extmark(M.original_buffer, M.nsId, line["idx"] - 1, 0, {
 			virt_text_pos = "right_align",
 			virt_text = {
 				{ line["author"]["value"], line["author"]["hl"] },

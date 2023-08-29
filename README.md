@@ -36,4 +36,5 @@ These are the fields you can configure by passing them to the `require('blame').
 - `width` - number - fixed width of the window  (default: width of longest blame line + 8)
 - `date_format` - string - Pattern for the date (default: "%Y/%m/%d %H:%M")
 - `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file. (default : "right_align")
+- `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
 

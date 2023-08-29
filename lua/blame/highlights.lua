@@ -1,5 +1,4 @@
 local M = {}
-M.highlights_per_hash = {}
 M.nsId = nil
 
 ---@return string
@@ -29,13 +28,18 @@ end
 
 ---Applies the created highlights to a specified buffer
 ---@param buffId integer
-M.highlight_same_hash = function(buffId)
+---@param merge_consecutive boolean
+M.highlight_same_hash = function(buffId, merge_consecutive)
 	M.nsId = vim.api.nvim_create_namespace("blame_ns")
 	local lines = vim.api.nvim_buf_get_lines(buffId, 0, -1, false)
 
 	for idx, line in ipairs(lines) do
 		local hash = line:match("^%S+")
-		if hash == "00000000" then
+		local should_skip = false
+		if idx > 1 and merge_consecutive then
+			should_skip = lines[idx - 1]:match("^%S+") == hash
+		end
+		if hash == "00000000" or should_skip then
 			vim.api.nvim_buf_add_highlight(buffId, M.nsId, "NotCommitedBlame", idx - 1, 0, -1)
 		else
 			vim.api.nvim_buf_add_highlight(buffId, M.nsId, "DimHashBlame", idx - 1, 0, 8)

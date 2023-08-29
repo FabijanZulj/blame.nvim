@@ -8,10 +8,12 @@ local git = require("blame.git")
 ---@field date_format string Format of the output date
 ---@field width number|nil Manual setup of window width
 ---@field virtual_style "float"|"right_align"
+---@field merge_consecutive boolean Should same commits be ignored after first line
 local config = {
 	date_format = "%Y/%m/%d %H:%M",
 	width = nil,
 	virtual_style = "right_align",
+	merge_consecutive = false,
 }
 
 ---@class Blame

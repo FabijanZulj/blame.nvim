@@ -30,12 +30,25 @@ M.virtual_blame = function(blame_lines, config)
 	end
 end
 
+local function should_skip(blames, index)
+	if index ~= 1 then
+		local hash = string.sub(blames[index]["hash"], 0, 8)
+		local prev_hash = string.sub(blames[index - 1]["hash"], 0, 8)
+		return hash == prev_hash
+	end
+	return false
+end
+
 M.create_lines = function(blame_lines, config)
 	local lines = {}
 	for i, value in ipairs(blame_lines) do
+		local skip = false
+		if config.merge_consecutive then
+			skip = should_skip(blame_lines, i)
+		end
 		local hash = string.sub(value["hash"], 0, 8)
 		local is_not_commited = hash == "00000000"
-		if not is_not_commited then
+		if not (is_not_commited or skip) then
 			table.insert(lines, {
 				idx = i,
 				author = {
@@ -56,12 +69,19 @@ M.create_lines = function(blame_lines, config)
 	return lines
 end
 
+---@param blame_lines any[]
+---@param config Config
+---@return table
 M.create_lines_with_padding = function(blame_lines, config)
 	local mapped_lines = {}
 	local lines = vim.api.nvim_buf_get_lines(M.original_buffer, 0, -1, false)
 	local longest_line = util.longest_string_in_array(lines)
 
 	for i, value in ipairs(blame_lines) do
+		local skip = false
+		if config.merge_consecutive then
+			skip = should_skip(blame_lines, i)
+		end
 		local hash = string.sub(value["hash"], 0, 8)
 		local is_not_commited = hash == "00000000"
 
@@ -74,7 +94,7 @@ M.create_lines_with_padding = function(blame_lines, config)
 
 		local padding_needed = window_width - longest_line - content_length - 8
 
-		if not is_not_commited then
+		if not (is_not_commited or skip) then
 			table.insert(mapped_lines, {
 				idx = i,
 				author = {

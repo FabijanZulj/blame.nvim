@@ -34,6 +34,9 @@ local function setup_keybinds(buff)
 	)
 end
 
+---Open window blame
+---@param blame_lines any[]
+---@param config Config
 M.window_blame = function(blame_lines, config)
 	local width = config["width"] or (util.longest_string_in_array(blame_lines) + 8)
 	local cursor_pos = vim.api.nvim_win_get_cursor(0)
@@ -64,7 +67,7 @@ M.window_blame = function(blame_lines, config)
 	vim.api.nvim_set_option_value("cursorline", true, { win = M.blame_window })
 
 	vim.api.nvim_set_current_win(M.original_window)
-	highlights.highlight_same_hash(M.blame_buffer)
+	highlights.highlight_same_hash(M.blame_buffer, config.merge_consecutive)
 	vim.api.nvim_buf_set_option(M.blame_buffer, "modifiable", false)
 	vim.api.nvim_win_set_option(M.blame_window, "spell", false)
 end

@@ -28,6 +28,19 @@ local function setup_keybinds(buff)
 	vim.keymap.set("n", "<esc>", ":q<cr>", { buffer = buff, nowait = true, silent = true, noremap = true })
 	vim.keymap.set(
 		"n",
+		"<tab>",
+		[[:lua require("blame.blame_stack").push_to_blame_stack(]]
+			.. M.original_window
+			.. ","
+			.. M.blame_window
+			.. ","
+			.. M.blame_buffer
+			.. [[)<cr>]],
+		{ buffer = buff, nowait = true, silent = true, noremap = true }
+	)
+
+	vim.keymap.set(
+		"n",
 		"<cr>",
 		[[:lua require("blame.window_blame").show_full_commit()<cr>]],
 		{ buffer = buff, nowait = true, silent = true, noremap = true }
@@ -102,7 +115,7 @@ M.show_full_commit = function()
 	local row, _ = unpack(vim.api.nvim_win_get_cursor(M.blame_window))
 	local blame_line = vim.api.nvim_buf_get_lines(M.blame_buffer, row - 1, row, false)[1]
 	local hash = blame_line:match("^%S+")
-	git.show(hash, vim.fn.getcwd(), show_done, show_output)
+	git.show(hash, nil, vim.fn.getcwd(), show_done, show_output)
 end
 
 ---Close the blame window

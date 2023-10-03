@@ -74,7 +74,7 @@ local function toggle(blame_type)
 		end
 		return
 	end
-	git.blame(vim.api.nvim_buf_get_name(0), vim.fn.getcwd(), done(blame_type), stdout)
+	git.blame(vim.api.nvim_buf_get_name(0), vim.fn.expand('%:p:h'), done(blame_type), stdout)
 end
 
 ---@param blame_type "window"|"virtual"|""
@@ -85,7 +85,7 @@ local function enable(blame_type)
 	if is_window_open or is_virtual_open then
 		return
 	else
-		git.blame(vim.api.nvim_buf_get_name(0), vim.fn.getcwd(), done(blame_type), stdout)
+		git.blame(vim.api.nvim_buf_get_name(0), vim.fn.expand('%:p:h'), done(blame_type), stdout)
 	end
 end
 

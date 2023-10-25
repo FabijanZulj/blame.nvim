@@ -8,6 +8,9 @@ M.blame_buffer = nil
 M.original_window = nil
 M.gshow_output = nil
 
+M.blame_enabled_options = { "cursorbind", "scrollbind", "cursorline" }
+M.original_options = {}
+
 ---Sets the autocommands for the blame buffer
 local function setup_autocmd(blame_buff)
 	vim.api.nvim_create_autocmd({ "BufHidden", "BufUnload" }, {
@@ -58,13 +61,11 @@ M.window_blame = function(blame_lines, config)
 
 	vim.api.nvim_win_set_cursor(M.blame_window, cursor_pos)
 
-	vim.api.nvim_set_option_value("cursorbind", true, { win = M.original_window })
-	vim.api.nvim_set_option_value("scrollbind", true, { win = M.original_window })
-	vim.api.nvim_set_option_value("cursorline", true, { win = M.original_window })
-
-	vim.api.nvim_set_option_value("cursorbind", true, { win = M.blame_window })
-	vim.api.nvim_set_option_value("scrollbind", true, { win = M.blame_window })
-	vim.api.nvim_set_option_value("cursorline", true, { win = M.blame_window })
+    for _, option in ipairs(M.blame_enabled_options) do
+        M.original_options[option] = vim.api.nvim_get_option_value("cursorline", { win = M.original_window })
+        vim.api.nvim_set_option_value(option, true, { win = M.original_window })
+	    vim.api.nvim_set_option_value(option, true, { win = M.blame_window })
+    end
 
 	vim.api.nvim_set_current_win(M.original_window)
 	highlights.highlight_same_hash(M.blame_buffer, config.merge_consecutive)
@@ -110,6 +111,11 @@ end
 
 ---Close the blame window
 M.close_window = function()
+
+    for option, value in pairs(M.original_options) do
+        vim.api.nvim_set_option_value(option, value, { win = M.original_window })
+    end
+
 	local buff = M.blame_buffer
 	vim.api.nvim_win_close(M.blame_window, true)
 	vim.api.nvim_buf_delete(buff, { force = true })

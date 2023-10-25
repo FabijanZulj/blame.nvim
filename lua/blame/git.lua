@@ -6,7 +6,7 @@ local M = {}
 ---@param on_exit any callback on exiting the command
 ---@param on_stdout any
 M.blame = function(filename, cwd, on_exit, on_stdout)
-	local blame_command = "git --no-pager blame --line-porcelain " .. filename
+	local blame_command = "git --no-pager blame --line-porcelain \"" .. filename .. "\""
 	vim.fn.jobstart(blame_command, {
 		cwd = cwd,
 		on_exit = on_exit,

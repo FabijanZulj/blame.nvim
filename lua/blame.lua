@@ -9,11 +9,13 @@ local git = require("blame.git")
 ---@field width number|nil Manual setup of window width
 ---@field virtual_style "float"|"right_align"
 ---@field merge_consecutive boolean Should same commits be ignored after first line
+---@field commit_detail_view string "tab"|"split"|"vsplit"|"current" How to open commit details
 local config = {
 	date_format = "%Y/%m/%d %H:%M",
 	width = nil,
 	virtual_style = "right_align",
 	merge_consecutive = false,
+    commit_detail_view = "tab",
 }
 
 ---@class Blame

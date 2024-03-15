@@ -37,4 +37,5 @@ These are the fields you can configure by passing them to the `require('blame').
 - `date_format` - string - Pattern for the date (default: "%Y/%m/%d %H:%M")
 - `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file. (default : "right_align")
 - `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
+- `commit_detail_view` - string - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
 

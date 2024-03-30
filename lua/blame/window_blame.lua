@@ -1,5 +1,6 @@
 local util = require("blame.util")
 local highlights = require("blame.highlights")
+local blame_parser = require("blame.blame_parser")
 local git = require("blame.git")
 
 local M = {}
@@ -42,8 +43,9 @@ end
 ---Open window blame
 ---@param blame_lines any[]
 ---@param config Config
-M.window_blame = function(blame_lines, config)
-	local width = config["width"] or (util.longest_string_in_array(blame_lines) + 8)
+M.window_blame = function(parsed, config)
+	local lines = blame_parser.format_blame_to_line_string(parsed, config)
+	local width = config["width"] or (util.longest_string_in_array(lines) + 8)
 	local cursor_pos = vim.api.nvim_win_get_cursor(0)
 	M.original_window = vim.api.nvim_get_current_win()
 
@@ -53,7 +55,7 @@ M.window_blame = function(blame_lines, config)
 	M.blame_buffer = vim.api.nvim_create_buf(false, true)
 
 	vim.api.nvim_win_set_buf(M.blame_window, M.blame_buffer)
-	vim.api.nvim_buf_set_lines(M.blame_buffer, 0, -1, false, blame_lines)
+	vim.api.nvim_buf_set_lines(M.blame_buffer, 0, -1, false, lines)
 	vim.api.nvim_buf_set_option(M.blame_buffer, "filetype", "blame")
 
 	util.scroll_to_same_position(M.original_window, M.blame_window)
@@ -70,7 +72,7 @@ M.window_blame = function(blame_lines, config)
     end
 
 	vim.api.nvim_set_current_win(M.original_window)
-	highlights.highlight_same_hash(M.blame_buffer, config.merge_consecutive)
+	highlights.highlight_same_hash(M.blame_buffer, parsed, config.merge_consecutive, config)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = M.blame_buffer, })
 	vim.api.nvim_set_option_value("spell", false, { win = M.blame_window })
 	vim.api.nvim_set_option_value("number", false, { win = M.blame_window })

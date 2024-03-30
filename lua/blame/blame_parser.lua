@@ -44,12 +44,19 @@ M.format_blame_to_line_string = function(blame_lines, config)
 		if next(value) == nil then
 			goto continue
 		end
-		local formattedString = string.format(
-			"%-8s %-10s %s",
-			string.sub(value["hash"], 0, 8),
-			os.date(config.date_format, value["committer-time"]),
-			value["author"]
-		)
+		value["date"] = os.date(config.date_format, value["committer-time"])
+
+		local formattedString
+		if config.format ~= nil then
+			formattedString = config.format(value)
+		else
+			formattedString = string.format(
+				"%-8s %-10s %s",
+				string.sub(value["hash"], 0, 8),
+				value["date"],
+				value["author"]
+			)
+		end
 		table.insert(final_lines, formattedString)
 		::continue::
 	end

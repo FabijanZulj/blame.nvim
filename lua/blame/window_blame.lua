@@ -71,8 +71,10 @@ M.window_blame = function(blame_lines, config)
 
 	vim.api.nvim_set_current_win(M.original_window)
 	highlights.highlight_same_hash(M.blame_buffer, config.merge_consecutive)
-	vim.api.nvim_buf_set_option(M.blame_buffer, "modifiable", false)
-	vim.api.nvim_win_set_option(M.blame_window, "spell", false)
+	vim.api.nvim_set_option_value("modifiable", false, { buf = M.blame_buffer, })
+	vim.api.nvim_set_option_value("spell", false, { win = M.blame_window })
+	vim.api.nvim_set_option_value("number", false, { win = M.blame_window })
+	vim.api.nvim_set_option_value("relativenumber", false, { win = M.blame_window })
 end
 
 ---Setup the commit buffer

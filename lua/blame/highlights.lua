@@ -28,22 +28,27 @@ end
 
 ---Applies the created highlights to a specified buffer
 ---@param buffId integer
+---@param parsed table[]
 ---@param merge_consecutive boolean
-M.highlight_same_hash = function(buffId, merge_consecutive)
+---@param config Config
+M.highlight_same_hash = function(buffId, parsed, merge_consecutive, config)
 	M.nsId = vim.api.nvim_create_namespace("blame_ns")
-	local lines = vim.api.nvim_buf_get_lines(buffId, 0, -1, false)
 
-	for idx, line in ipairs(lines) do
-		local hash = line:match("^%S+")
+	for idx, line in ipairs(parsed) do
+		local hash = string.sub(line["hash"], 0, 8)
 		local should_skip = false
 		if idx > 1 and merge_consecutive then
-			should_skip = lines[idx - 1]:match("^%S+") == hash
+			should_skip = parsed[idx - 1]["hash"] == hash
 		end
 		if hash == "00000000" or should_skip then
 			vim.api.nvim_buf_add_highlight(buffId, M.nsId, "NotCommitedBlame", idx - 1, 0, -1)
 		else
-			vim.api.nvim_buf_add_highlight(buffId, M.nsId, "DimHashBlame", idx - 1, 0, 8)
-			vim.api.nvim_buf_add_highlight(buffId, M.nsId, hash, idx - 1, 9, -1)
+			local start = 0
+			if config.format == nil then
+				vim.api.nvim_buf_add_highlight(buffId, M.nsId, "DimHashBlame", idx - 1, 0, 8)
+				start = 9
+			end
+			vim.api.nvim_buf_add_highlight(buffId, M.nsId, hash, idx - 1, start, -1)
 		end
 	end
 end

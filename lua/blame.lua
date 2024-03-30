@@ -6,16 +6,18 @@ local git = require("blame.git")
 
 ---@class Config
 ---@field date_format string Format of the output date
+---@field format function|nil Custom blame formmatter, takes a table containing key-values pair of git blame --line-porcelaine (and an aditional date value)
 ---@field width number|nil Manual setup of window width
 ---@field virtual_style "float"|"right_align"
 ---@field merge_consecutive boolean Should same commits be ignored after first line
 ---@field commit_detail_view string "tab"|"split"|"vsplit"|"current" How to open commit details
 local config = {
 	date_format = "%Y/%m/%d %H:%M",
+	format = nil,
 	width = nil,
 	virtual_style = "right_align",
 	merge_consecutive = false,
-    commit_detail_view = "tab",
+	commit_detail_view = "tab",
 }
 
 ---@class Blame
@@ -46,9 +48,8 @@ local function done(blame_type)
 		local parsed_blames = blame_parser.parse_porcelain(M.blame_lines)
 		highlights.map_highlights_per_hash(parsed_blames)
 
-		local line_strings = blame_parser.format_blame_to_line_string(parsed_blames, M.config)
 		if blame_type == "window" or blame_type == "" then
-			window_blame.window_blame(line_strings, M.config)
+			window_blame.window_blame(parsed_blames, M.config)
 		elseif blame_type == "virtual" then
 			virtual_blame.virtual_blame(parsed_blames, M.config)
 		end

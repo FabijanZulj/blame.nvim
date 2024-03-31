@@ -34,6 +34,11 @@ M.blame_nvim_augroup = vim.api.nvim_create_augroup("BlameNvim", { clear = false 
 ---@param args Config?
 M.setup = function(args)
 	M.config = vim.tbl_deep_extend("force", M.config, args or {})
+	highlights.setup_highlights()
+	vim.api.nvim_create_autocmd('ColorScheme', {
+		-- group = 'blame_nvim',
+		callback = highlights.setup_highlights,
+	})
 end
 
 ---Creates a done hook for the 'git blame' command depending on the blame_type to show

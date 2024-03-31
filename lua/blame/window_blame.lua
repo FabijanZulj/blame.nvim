@@ -75,7 +75,7 @@ M.window_blame = function(parsed, config)
 	end
 
 	vim.api.nvim_set_current_win(M.original_window)
-	highlights.highlight_same_hash(M.blame_buffer, parsed, config.merge_consecutive, config)
+	highlights.highlight_same_hash(M.blame_buffer, M.blame_window, parsed, config.merge_consecutive, config)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = M.blame_buffer, })
 	vim.api.nvim_set_option_value("spell", false, { win = M.blame_window })
 	vim.api.nvim_set_option_value("number", false, { win = M.blame_window })

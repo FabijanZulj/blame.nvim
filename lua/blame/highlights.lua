@@ -1,6 +1,7 @@
 local M = {}
 M.nsId = nil
 
+---@param custom_colors string[]
 ---@return string
 local function random_rgb(custom_colors)
     if custom_colors and #custom_colors > 0 then

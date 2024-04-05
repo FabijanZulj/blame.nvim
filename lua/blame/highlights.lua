@@ -2,11 +2,16 @@ local M = {}
 M.nsId = nil
 
 ---@return string
-local function random_rgb()
-	local r = math.random(100, 255)
-	local g = math.random(100, 255)
-	local b = math.random(100, 255)
-	return string.format("#%02X%02X%02X", r, g, b)
+local function random_rgb(custom_colors)
+    if custom_colors and #custom_colors > 0 then
+        local index = math.random(1, #custom_colors)
+        return custom_colors[index]
+    else
+        local r = math.random(100, 255)
+        local g = math.random(100, 255)
+        local b = math.random(100, 255)
+        return string.format("#%02X%02X%02X", r, g, b)
+    end
 end
 
 M.setup_highlights = function()
@@ -17,13 +22,14 @@ end
 
 ---Creates the highlights for Hash, NotCommited and random color per one hash
 ---@param parsed_lines any
-M.map_highlights_per_hash = function(parsed_lines)
+---@param config Config
+M.map_highlights_per_hash = function(parsed_lines, config)
 	M.nsId = vim.api.nvim_create_namespace("blame_ns")
 	for _, value in ipairs(parsed_lines) do
 		local full_hash = value["hash"]
 		local hash = string.sub(full_hash, 0, 8)
 		if next(vim.api.nvim_get_hl(M.nsId, { name = hash })) == nil then
-			vim.api.nvim_set_hl(M.nsId, hash, { fg = random_rgb(), })
+			vim.api.nvim_set_hl(M.nsId, hash, { fg = random_rgb(config.colors), })
 		end
 	end
 end

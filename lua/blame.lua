@@ -11,6 +11,7 @@ local git = require("blame.git")
 ---@field virtual_style "float"|"right_align"
 ---@field merge_consecutive boolean Should same commits be ignored after first line
 ---@field commit_detail_view string "tab"|"split"|"vsplit"|"current" How to open commit details
+---@field colors string[]|nil Custom colors for the highlights
 local config = {
 	date_format = "%Y/%m/%d %H:%M",
 	format = nil,
@@ -18,6 +19,7 @@ local config = {
 	virtual_style = "right_align",
 	merge_consecutive = false,
 	commit_detail_view = "tab",
+    colors = nil,
 }
 
 ---@class Blame
@@ -51,7 +53,7 @@ local function done(blame_type)
 			return
 		end
 		local parsed_blames = blame_parser.parse_porcelain(M.blame_lines)
-		highlights.map_highlights_per_hash(parsed_blames)
+		highlights.map_highlights_per_hash(parsed_blames, M.config)
 
 		if blame_type == "window" or blame_type == "" then
 			window_blame.window_blame(parsed_blames, M.config)

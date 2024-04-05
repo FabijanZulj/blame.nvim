@@ -11,8 +11,8 @@ end
 
 M.setup_highlights = function()
 	vim.api.nvim_set_hl(0, 'DimHashBlame', { fg = "DimGray", default = true })
-	vim.api.nvim_set_hl(0, 'NotCommitedBlame', { fg = "bg", bg = "bg", default = true })
-	vim.api.nvim_set_hl(0, 'SkipedBlame', { fg = "bg", bg = "bg", default = true })
+	vim.api.nvim_set_hl(0, 'NotCommitedBlame', { fg = "NONE", bg = "NONE", default = true })
+	vim.api.nvim_set_hl(0, 'SkipedBlame', { fg = "NONE", bg = "NONE", default = true })
 end
 
 ---Creates the highlights for Hash, NotCommited and random color per one hash
@@ -22,7 +22,7 @@ M.map_highlights_per_hash = function(parsed_lines)
 	for _, value in ipairs(parsed_lines) do
 		local full_hash = value["hash"]
 		local hash = string.sub(full_hash, 0, 8)
-		if next(vim.api.nvim_get_hl(M.nsId, { name = hash, create = false })) == nil then
+		if next(vim.api.nvim_get_hl(M.nsId, { name = hash })) == nil then
 			vim.api.nvim_set_hl(M.nsId, hash, { fg = random_rgb(), })
 		end
 	end

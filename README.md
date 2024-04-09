@@ -39,6 +39,7 @@ These are the fields you can configure by passing them to the `require('blame').
 - `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file. (default : "right_align")
 - `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
 - `commit_detail_view` - string - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
+- `colors` - string[] - List of hex colors, defaults to nil which will use a random color for each commit hash
 
 ### Custom format example.
 

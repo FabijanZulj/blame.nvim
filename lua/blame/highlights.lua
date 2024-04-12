@@ -1,67 +1,96 @@
 local M = {}
-M.nsId = nil
 
----@param custom_colors string[]
 ---@return string
-local function random_rgb(custom_colors)
-    if custom_colors and #custom_colors > 0 then
-        local index = math.random(1, #custom_colors)
-        return custom_colors[index]
-    else
-        local r = math.random(100, 255)
-        local g = math.random(100, 255)
-        local b = math.random(100, 255)
-        return string.format("#%02X%02X%02X", r, g, b)
+local function random_rgb()
+    local r = math.random(100, 255)
+    local g = math.random(100, 255)
+    local b = math.random(100, 255)
+    return string.format("#%02X%02X%02X", r, g, b)
+end
+
+---Highlights each unique hash with a random fg
+---@param parsed_lines Porcelain[]
+M.create_highlights_per_hash = function(parsed_lines)
+    for _, value in ipairs(parsed_lines) do
+        local full_hash = value.hash
+        local hash = string.sub(full_hash, 0, 7)
+        if vim.fn.hlID(hash) == 0 then
+            vim.api.nvim_set_hl(
+                0,
+                hash,
+                { fg = random_rgb(), ctermfg = math.random(0, 255) }
+            )
+        end
     end
 end
 
-M.setup_highlights = function()
-	vim.api.nvim_set_hl(0, 'DimHashBlame', { fg = "DimGray", default = true })
-	vim.api.nvim_set_hl(0, 'NotCommitedBlame', { fg = "NONE", bg = "NONE", default = true })
-	vim.api.nvim_set_hl(0, 'SkipedBlame', { fg = "NONE", bg = "NONE", default = true })
-end
+---@class LineWithHl
+---@field idx integer
+---@field values {textValue: string, hl: string}[]
+---@field format string
 
----Creates the highlights for Hash, NotCommited and random color per one hash
----@param parsed_lines any
+---@param  porcelain_lines Porcelain[]
 ---@param config Config
-M.map_highlights_per_hash = function(parsed_lines, config)
-	M.nsId = vim.api.nvim_create_namespace("blame_ns")
-	for _, value in ipairs(parsed_lines) do
-		local full_hash = value["hash"]
-		local hash = string.sub(full_hash, 0, 8)
-		if next(vim.api.nvim_get_hl(M.nsId, { name = hash })) == nil then
-			vim.api.nvim_set_hl(M.nsId, hash, { fg = random_rgb(config.colors), })
-		end
-	end
+---@return LineWithHl[]
+M.get_hld_lines_from_porcelain = function(porcelain_lines, config)
+    local blame_lines = {}
+    for idx, v in ipairs(porcelain_lines) do
+        if
+            config.merge_consecutive
+            and idx > 1
+            and porcelain_lines[idx - 1].hash == v.hash
+        then
+            blame_lines[#blame_lines + 1] = {
+                idx = idx,
+                values = {
+                    {
+                        textValue = "",
+                        hl = nil,
+                    },
+                },
+                format = "",
+            }
+        else
+            local line_with_hl = config.format_fn(v, config, idx)
+            blame_lines[#blame_lines + 1] = line_with_hl
+        end
+    end
+    return blame_lines
 end
 
 ---Applies the created highlights to a specified buffer
----@param buffId integer
----@param winId integer
----@param parsed table[]
----@param merge_consecutive boolean
----@param config Config
-M.highlight_same_hash = function(buffId, winId, parsed, merge_consecutive, config)
-	vim.api.nvim_win_set_hl_ns(winId, M.nsId)
-	for idx, line in ipairs(parsed) do
-		local hash = string.sub(line["hash"], 0, 8)
-		local should_skip = false
-		if idx > 1 and merge_consecutive then
-			should_skip = parsed[idx - 1]["hash"] == hash
-		end
-		if hash == "00000000" then
-			vim.api.nvim_buf_add_highlight(buffId, M.nsId, "NotCommitedBlame", idx - 1, 0, -1)
-		elseif should_skip then
-			vim.api.nvim_buf_add_highlight(buffId, M.nsId, "SkipedBlame", idx - 1, 0, -1)
-		else
-			local start = 0
-			if config.format == nil then
-				vim.api.nvim_buf_add_highlight(buffId, M.nsId, "DimHashBlame", idx - 1, 0, 8)
-				start = 9
-			end
-			vim.api.nvim_buf_add_highlight(buffId, M.nsId, hash, idx - 1, start, -1)
-		end
-	end
-end
+-- -@param lines string[]
+-- -@param config Config
+-- M.highlight_same_hash = function(lines, config, buffer)
+--     for idx, line in ipairs(lines) do
+--         local hash = line:match("^%S+")
+--         if hash then
+--             -- vim.api.nvim_buf_add_highlight(
+--             --     buffer,
+--             --     config.ns_id,
+--             --     "Comment",
+--             --     idx - 1,
+--             --     0,
+--             --     7
+--             -- )
+--             -- vim.api.nvim_buf_add_highlight(
+--             --     buffer,
+--             --     config.ns_id,
+--             --     hash,
+--             --     idx - 1,
+--             --     8,
+--             --     -1
+--             -- )
+--             vim.api.nvim_buf_add_highlight(
+--                 buffer,
+--                 config.ns_id,
+--                 hash,
+--                 idx - 1,
+--                 0,
+--                 -1
+--             )
+--         end
+--     end
+-- end
 
 return M

@@ -2,6 +2,7 @@ local git = require("blame.git")
 local utils = require("blame.utils")
 local porcelain_parser = require("blame.porcelain_parser")
 local mappings = require("blame.mappings")
+
 ---@class BlameStack
 ---@field config Config
 ---@field blame_view BlameView
@@ -9,6 +10,7 @@ local mappings = require("blame.mappings")
 ---@field stack_buffer integer
 ---@field stack_info_float_win integer
 ---@field original_window integer
+---@field initial_commit string
 ---@field original_buffer integer
 ---@field file_path string
 ---@field cwd string
@@ -26,9 +28,16 @@ function BlameStack:new(config, blame_view, original_window, file_path, cwd)
     o.original_buffer = vim.api.nvim_win_get_buf(o.original_window)
     o.file_path = file_path
     o.cwd = cwd
-
     o.stack_buffer = nil
     o.git_client = git:new(config)
+    o.git_client:initial_commit(
+        o.file_path,
+        o.cwd,
+        function(initial_commit)
+            self.initial_commit = initial_commit
+        end
+    )
+
     o.commit_stack = {}
 
     return o
@@ -47,9 +56,10 @@ function BlameStack:pop()
     self:show_file_content(
         self.commit_stack[#self.commit_stack],
         self.stack_buffer,
+        true,
         function()
             vim.api.nvim_set_current_win(self.original_window)
-            self:blame_for_commit(self.commit_stack[#self.commit_stack])
+            self:blame_for_commit(self.commit_stack[#self.commit_stack], true)
         end
     )
 end
@@ -158,6 +168,13 @@ function BlameStack:close_stack_info_float()
 end
 
 function BlameStack:push(commit)
+    if commit.hash == self.initial_commit then
+        vim.notify(
+            "There is nothing previous to this commit for this file",
+            vim.log.levels.INFO
+        )
+        return
+    end
     if
         #self.commit_stack > 0
         and self.commit_stack[#self.commit_stack].hash == commit.hash
@@ -197,9 +214,13 @@ function BlameStack:push(commit)
     table.insert(self.commit_stack, commit)
     self:open_stack_info_float()
 
-    self:show_file_content(commit, self.stack_buffer, function()
-        self:blame_for_commit(commit)
-    end)
+    self:show_file_content(
+        commit,
+        self.stack_buffer,
+        true,
+        function()
+            self:blame_for_commit(commit, true)
+        end)
 end
 
 function BlameStack:close()
@@ -215,23 +236,27 @@ function BlameStack:close()
     self.commit_stack = {}
 end
 
-function BlameStack:blame_for_commit(commit, cb)
-    self.git_client:blame(self.file_path, self.cwd, commit.hash, function(data)
-        vim.schedule(function()
-            local parsed_blames = porcelain_parser.parse_porcelain(data)
-            self.blame_view:open(parsed_blames)
-            if cb ~= nil then
-                cb()
-            end
+function BlameStack:blame_for_commit(commit, prev, cb)
+    self.git_client:blame(
+        self.file_path,
+        self.cwd,
+        prev and commit.hash .. "^" or commit.hash,
+        function(data)
+            vim.schedule(function()
+                local parsed_blames = porcelain_parser.parse_porcelain(data)
+                self.blame_view:open(parsed_blames)
+                if cb ~= nil then
+                    cb()
+                end
+            end)
         end)
-    end)
 end
 
-function BlameStack:show_file_content(commit, buf, cb)
+function BlameStack:show_file_content(commit, buf, prev, cb)
     self.git_client:show(
         self.file_path,
         self.cwd,
-        commit.hash,
+        prev and commit.hash .. "^" or commit.hash,
         function(file_content)
             vim.schedule(function()
                 -- have to remove laste element as it is a newline always inserted from git show

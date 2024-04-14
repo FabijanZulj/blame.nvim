@@ -30,9 +30,9 @@ function Git:blame(filename, cwd, commit, callback)
             if exit_code ~= 0 then
                 vim.notify(
                     "Could not execute blame, might not be a git repository",
-                    vim.log.levels.INFO
+                    vim.log.levels.DEBUG
                 )
-                return
+                return callback({})
             end
             callback(data)
         end,
@@ -62,11 +62,40 @@ function Git:show(file_path, cwd, commit, callback)
             if exit_code ~= 0 then
                 vim.notify(
                     "Could not execute show, might not be a git repository",
-                    vim.log.levels.INFO
+                    vim.log.levels.DEBUG
                 )
-                return
+                return callback({})
             end
             callback(data)
+        end,
+        on_stdout = function(_, d)
+            data = d
+        end,
+        stdout_buffered = true,
+    })
+end
+
+---Find initial commit hash for given file
+---@param file_path string|nil absolute file path
+---@param cwd any cwd where to execute the command
+---@param callback fun(data: string) callback on exiting the command with output string
+function Git:initial_commit(file_path, cwd, callback)
+    local log_command = "git log --diff-filter=A " .. file_path
+
+    vim.fn.jobstart(log_command, {
+        cwd = cwd,
+        on_exit = function(_, exit_code)
+            if exit_code ~= 0 then
+                vim.notify(
+                    "Could not execute show, might not be a git repository",
+                    vim.log.levels.DEBUG
+                )
+                return callback("")
+            end
+            local commit = string.sub(data[1], 8)
+            print(data[1])
+            print(commit)
+            callback(commit)
         end,
         on_stdout = function(_, d)
             data = d

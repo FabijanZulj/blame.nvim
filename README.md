@@ -3,11 +3,11 @@
 
 
 Window:
-<img width="1499" alt="window_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/3a3c0a87-8f6b-461a-9ea7-cd849c2de326">
+<img width="1499" alt="window_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/68669b29-923e-48ee-9c75-39b096e98ede">
 
 
 Virtual:
-<img width="1495" alt="virtual_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/8c17c8ae-901e-4183-ac73-c62bb4a259dc">
+<img width="1489" alt="virtual_blame_cut" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/ea70061c-09a4-45d9-9eec-41881646ae25">
 
 
 _Same commits are highlighted in the same color_
@@ -16,60 +16,146 @@ _Same commits are highlighted in the same color_
 
 ```lua
 {
-  "FabijanZulj/blame.nvim"
+  "FabijanZulj/blame.nvim",
+  config = function()
+    require("blame").setup()
+  end
 }
 ```
+*setup() must be called*
 
 ## Usage
 The following commands are used:
-- `ToggleBlame [mode]` - Toggle the blame window or virtual text. If no mode is provided it opens the `window` type
-- `EnableBlame [mode]` - Enables the blame window or virtual text. If no mode is provided it opens the `window` type
-- `DisableBlame` - Disables the blame window or virtual text whichever is currently open
+- `BlameToggle [view]` - Toggle the blame with provided view. If no view is provided it opens the `default` (window) view
 
-There are two modes:
-- `window` - fugitive style window to the left of the window
+There are two built-in views:
+- `window` - fugitive style window to the left of the current window
 - `virtual` - blame shown in a virtual text floated to the right
 
 ## Configuration
 
-These are the fields you can configure by passing them to the `require('blame').setup({})` function:
-- `width` - number - fixed width of the window  (default: width of longest blame line + 8)
-- `date_format` - string - Pattern for the date (default: "%Y/%m/%d %H:%M")
-- `format` - function - A custom method to format blames. See bellow for an example.
-- `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file. (default : "right_align")
-- `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
-- `commit_detail_view` - string - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
-- `colors` - string[] - List of hex colors, defaults to nil which will use a random color for each commit hash
-
-### Custom format example.
-
-You can use a custom function to format blames, this function gets a table containing attributes of `git blame --lines-porcelaine` and an additional
-`date` value formated using the `date_format` option. Your custom methods just needs to returns a string.
-
-Example:
-
-```lua
-require('blame').setup({
-	format = function(blame)
-		return string.format("%s %s %s", blame.author, blame.date, blame.summary)
-	end,
-})
-```
-
-Available options:
+Default config:
 ```lua
 {
-  hash = "e101b2ed9cdd29a37de596b95a6ec27f1c3f82ae",
-  author = "FabijanZulj",
-  ["author-mail"] = "<38249221+FabijanZulj@users.noreply.github.com>",
-  ["author-time"] = 1692005070,
-  ["author-tz"] = "+0200",
-  committer "GitHub",
-  ["committer-mail"] = "<noreply@github.com>",
-  ["committer-time"] = 1692005070,
-  date = "2024-31-03 03:25"
-  ["committer-tz"] = "+0200",
-  summary = "Create README.md",
-  filename = "README.md",
+    date_format = "%d.%m.%Y",
+    virtual_style = "right",
+    views = {
+        window = window_view,
+        virtual = virtual_view,
+        default = window_view,
+    },
+    merge_consecutive = false,
+    max_summary_width = 30,
+    colors = nil,
+    commit_detail_view = "vsplit",
+    format_fn = formats.commit_date_author_fn,
+    mappings = {
+        commit_info = "i",
+        stack_push = "<TAB>",
+        stack_pop = "<BS>",
+        show_commit = "<CR>",
+        close = { "<esc>", "q" },
+    }
 }
 ```
+
+These are the fields you can configure by passing them to the `require('blame').setup({})` function:
+- `date_format` - string - Pattern for the date
+- `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file.
+- `views` - views that can be used when toggling blame
+- `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
+- `max_summary_width` - If date_message is used, cut the summary if it excedes this number of characters
+- `colors` - list of RGB strings to use instead of randomly generated RGBs for highlights
+- `commit_detail_view` - string - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
+- `format_fn` - format function that is used for processing of porcelain lines. See below for details
+  ( built-in: `("blame.formats.default_formats").date_message` and `("blame.formats.default_formats").commit_date_author_fn` )
+- `mappings` - custom mappings for various actions, you can pass in single or multiple mappings for an action.
+
+### Features
+
+####  Blame stack
+You can see the state of the file prior to selected commit using `stack_push`(default: `<TAB>`) and `stack_pop` (default: `<BS>`) mappings.
+In the pop-up on the right the stack is shown and you can go back and forward through the history of the file.
+
+<details open>
+    <summary>Details</summary>
+
+https://github.com/FabijanZulj/blame.nvim/assets/38249221/f91bf22b-7bbe-4cdb-acac-f1c7fc993aab
+</details>
+
+#### Commit info
+To see the full commit info pop-up press the `commit_info`(default: 'i') mapping on the specific commit line. (press `i` again to move into the popup window, or move cursor to close the popup)
+
+<details open>
+    <summary>Details</summary>
+    <img width="1495" alt="commit_info_popup" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/3ece577d-3e40-457c-9457-5ccce58f94ff">
+</details>
+
+#### Full commit info
+To see the full commit data press the `show_commit`(default `<CR>`) mapping on the commit line
+
+<details open>
+    <summary>Details</summary>
+    <img width="1495" alt="commit_info_full" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/84aad831-0c0d-44fe-a38f-6a4d027070c3">
+</details>
+
+## Advanced
+
+### Custom format function
+You can provide custom format functions that get executed for every blame line and are shown in a view.
+By default highlight is created for each commit hash so it can be used in hl field.
+
+Signature of the function:
+
+`FormatFn fun(line_porcelain: Porcelain, config:Config, idx:integer):LineWithHl`
+
+where LineWithHl is:
+```lua
+---@class LineWithHl
+---@field idx integer
+---@field values {textValue: string, hl: string}[]
+---@field format string
+```
+
+And Porcelain being:
+```lua
+---@class Porcelain
+---@field author string
+---@field author_email string
+---@field author_time number
+---@field author_tz string
+---@field committer string
+---@field committer_mail string
+---@field committer_time number
+---@field committer_tz string
+---@field filename string
+---@field hash string
+---@field previous string
+---@field summary string
+---@field content string
+```
+
+Built in format functions are:
+
+`("blame.formats.default_formats").date_message`
+- {commit date} {summary}
+
+`("blame.formats.default_formats").commit_date_author_fn`
+- {commit hash} {commit date} {author}
+
+Your function must return a list of values ({textValue: string, hl: string}). Those text fragments will be formatted with provided `format` field and highlighted with the HiglightGroup given in `hl`
+
+*for more info check the implementations for 'date_message' or 'commit_date_author_fn'*
+
+
+### Custom views
+It is also possible to implement your custom view. To implement a custom view you need to implement this interface:
+``` lua
+---@class BlameView
+---@field new fun(self, config: Config) : BlameView
+---@field open fun(self, lines: Porcelain[])
+---@field is_open fun(): boolean
+---@field close fun(cleanup: boolean)
+```
+And add it to the config field table `views`
+See 'blame.views.window_view' and 'blame.views.virtual_view' for examples

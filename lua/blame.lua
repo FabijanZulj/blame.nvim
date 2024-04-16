@@ -6,7 +6,7 @@ local formats = require("blame.formats.default_formats")
 
 ---@class BlameView
 ---@field new fun(self, config:Config) : BlameView
----@field open fun(self, lines: string[])
+---@field open fun(self, lines: Porcelain[])
 ---@field is_open fun(): boolean
 ---@field close fun(cleanup: boolean)
 
@@ -23,13 +23,15 @@ local formats = require("blame.formats.default_formats")
 ---@field date_format? string Format of the output date
 ---@field views table<string, BlameView>
 ---@field merge_consecutive boolean Merge consecutive commits and don't repeat
----@field virtual_style 'float' | any Style of the virtual view
+---@field virtual_style 'float' | 'right_align' Style of the virtual view
+---@field colors string[] | nil List of colors to use for highlights. If nill will use random RGB
 ---@field format_fn FormatFn Function that formats the output, default: require("blame.formats.default_formats").date_message
 ---@field max_summary_width number Max width of the summary in 'date_summary' format
----@field show_view_type 'current' | 'tab' | 'vsplit' | 'split'
+---@field commit_detail_view 'current' | 'tab' | 'vsplit' | 'split'
 ---@field mappings Mappings
 local config = {
     date_format = "%d.%m.%Y",
+    virtual_style = "right_align",
     views = {
         window = window_view,
         virtual = virtual_view,
@@ -37,8 +39,9 @@ local config = {
     },
     merge_consecutive = false,
     max_summary_width = 30,
-    format_fn = formats.date_message,
-    show_view_type = "vsplit",
+    colors = nil,
+    format_fn = formats.commit_date_author_fn,
+    commit_detail_view = "vsplit",
     mappings = {
         commit_info = "i",
         stack_push = "<TAB>",

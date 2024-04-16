@@ -96,7 +96,7 @@ function WindowView:open(lines)
         highlights.get_hld_lines_from_porcelain(lines, self.config)
     local blame_lines = self:lines_with_hl_to_text_lines(lines_with_hl)
 
-    highlights.create_highlights_per_hash(lines)
+    highlights.create_highlights_per_hash(lines, self.config)
 
     -- blame window already opened, updating the content
     if self.blame_window ~= nil then
@@ -128,7 +128,7 @@ function WindowView:open(lines)
     self:setup_autocmd()
     self:setup_keybinds(vim.api.nvim_win_get_buf(self.blame_window))
 
-    vim.api.nvim_win_set_cursor(self.blame_window, cursor_pos)
+    vim.api.nvim_win_set_cursor(self.blame_window, { cursor_pos[1], 0 })
 
     vim.wo[self.blame_window].spell = false
     vim.wo[self.blame_window].number = false
@@ -312,7 +312,7 @@ end
 function WindowView:show_full_commit()
     local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
     local commit = self.blamed_lines[row]
-    local view = self.config.show_view_type or "tab"
+    local view = self.config.commit_detail_view or "tab"
     self.git_client:show(
         nil,
         vim.fn.getcwd(),

@@ -252,8 +252,10 @@ function BlameStack:show_file_content(commit, buf, prev, cb)
         prev and commit.hash .. "^" or commit.hash,
         function(file_content)
             vim.schedule(function()
-                -- have to remove laste element as it is a newline always inserted from git show
-                table.remove(file_content)
+                -- most of the time empty line is inserted from git-show. Might create issues but for now this crude check works
+                if file_content[#file_content] == "" then
+                    table.remove(file_content)
+                end
 
                 vim.api.nvim_buf_set_lines(buf, 0, -1, false, file_content)
                 if cb ~= nil then

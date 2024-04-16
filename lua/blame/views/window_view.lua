@@ -64,7 +64,7 @@ function WindowView:lines_with_hl_to_text_lines(lines_with_hl)
         end
         table.insert(
             text_lines,
-            string.format(line.format, table.unpack(text_fragments))
+            string.format(line.format, (table.unpack or unpack)(text_fragments))
         )
     end
     return text_lines

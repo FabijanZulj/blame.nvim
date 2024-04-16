@@ -39,10 +39,16 @@ end
 
 local function scroll_to_same_position(win_source, win_target)
     local win_line_source = vim.fn.line("w0", win_source)
-    vim.api.nvim_win_set_cursor(
-        win_target,
-        { win_line_source + vim.wo[win_source].scrolloff, 0 }
-    )
+    if
+        not pcall(
+            vim.api.nvim_win_set_cursor,
+            win_target,
+            { win_line_source + vim.wo[win_source].scrolloff, 0 }
+        )
+    then
+        vim.api.nvim_win_set_cursor(win_target, { win_line_source, 0 })
+    end
+
     vim.api.nvim_win_call(win_target, function()
         vim.cmd.normal({ "zt", bang = true })
     end)

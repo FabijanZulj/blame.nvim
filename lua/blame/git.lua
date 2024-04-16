@@ -30,7 +30,7 @@ function Git:blame(filename, cwd, commit, callback)
             if exit_code ~= 0 then
                 vim.notify(
                     "Could not execute blame, might not be a git repository",
-                    vim.log.levels.DEBUG
+                    vim.log.levels.INFO
                 )
                 return callback({})
             end
@@ -60,10 +60,7 @@ function Git:show(file_path, cwd, commit, callback)
         cwd = cwd,
         on_exit = function(_, exit_code)
             if exit_code ~= 0 then
-                vim.notify(
-                    "Could not execute show, might not be a git repository",
-                    vim.log.levels.DEBUG
-                )
+                vim.notify("Could not execute git show", vim.log.levels.INFO)
                 return callback({})
             end
             callback(data)
@@ -82,19 +79,15 @@ end
 function Git:initial_commit(file_path, cwd, callback)
     local log_command = "git log --diff-filter=A " .. file_path
 
+    local data
     vim.fn.jobstart(log_command, {
         cwd = cwd,
         on_exit = function(_, exit_code)
             if exit_code ~= 0 then
-                vim.notify(
-                    "Could not execute show, might not be a git repository",
-                    vim.log.levels.DEBUG
-                )
+                vim.notify("Could not execute `git show`", vim.log.levels.INFO)
                 return callback("")
             end
             local commit = string.sub(data[1], 8)
-            print(data[1])
-            print(commit)
             callback(commit)
         end,
         on_stdout = function(_, d)

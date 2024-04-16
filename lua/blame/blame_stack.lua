@@ -30,13 +30,9 @@ function BlameStack:new(config, blame_view, original_window, file_path, cwd)
     o.cwd = cwd
     o.stack_buffer = nil
     o.git_client = git:new(config)
-    o.git_client:initial_commit(
-        o.file_path,
-        o.cwd,
-        function(initial_commit)
-            self.initial_commit = initial_commit
-        end
-    )
+    o.git_client:initial_commit(o.file_path, o.cwd, function(initial_commit)
+        self.initial_commit = initial_commit
+    end)
 
     o.commit_stack = {}
 
@@ -214,13 +210,9 @@ function BlameStack:push(commit)
     table.insert(self.commit_stack, commit)
     self:open_stack_info_float()
 
-    self:show_file_content(
-        commit,
-        self.stack_buffer,
-        true,
-        function()
-            self:blame_for_commit(commit, true)
-        end)
+    self:show_file_content(commit, self.stack_buffer, true, function()
+        self:blame_for_commit(commit, true)
+    end)
 end
 
 function BlameStack:close()
@@ -249,7 +241,8 @@ function BlameStack:blame_for_commit(commit, prev, cb)
                     cb()
                 end
             end)
-        end)
+        end
+    )
 end
 
 function BlameStack:show_file_content(commit, buf, prev, cb)

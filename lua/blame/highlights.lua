@@ -1,25 +1,30 @@
 local M = {}
 
 ---@return string
-local function random_rgb()
-    local r = math.random(100, 255)
-    local g = math.random(100, 255)
-    local b = math.random(100, 255)
-    return string.format("#%02X%02X%02X", r, g, b)
+local function random_rgb(custom_colors)
+    if custom_colors and #custom_colors > 0 then
+        local index = math.random(1, #custom_colors)
+        return custom_colors[index]
+    else
+        local r = math.random(100, 255)
+        local g = math.random(100, 255)
+        local b = math.random(100, 255)
+        return string.format("#%02X%02X%02X", r, g, b)
+    end
 end
 
 ---Highlights each unique hash with a random fg
 ---@param parsed_lines Porcelain[]
-M.create_highlights_per_hash = function(parsed_lines)
+---@param config Config
+M.create_highlights_per_hash = function(parsed_lines, config)
     for _, value in ipairs(parsed_lines) do
         local full_hash = value.hash
         local hash = string.sub(full_hash, 0, 7)
         if vim.fn.hlID(hash) == 0 then
-            vim.api.nvim_set_hl(
-                0,
-                hash,
-                { fg = random_rgb(), ctermfg = math.random(0, 255) }
-            )
+            vim.api.nvim_set_hl(0, hash, {
+                fg = random_rgb(config.colors),
+                ctermfg = math.random(0, 255),
+            })
         end
     end
 end

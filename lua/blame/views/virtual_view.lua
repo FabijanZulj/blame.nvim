@@ -18,7 +18,7 @@ end
 
 ---@param porcelain_lines Porcelain[]
 function VirtualView:open(porcelain_lines)
-    highlights.create_highlights_per_hash(porcelain_lines)
+    highlights.create_highlights_per_hash(porcelain_lines, self.config)
     self.original_buffer = vim.api.nvim_win_get_buf(0)
     local lines_with_hls =
         highlights.get_hld_lines_from_porcelain(porcelain_lines, self.config)

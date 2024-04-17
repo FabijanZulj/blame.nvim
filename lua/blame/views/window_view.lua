@@ -116,6 +116,10 @@ function WindowView:open(lines)
     vim.cmd("lefta vs")
     vim.api.nvim_win_set_buf(0, vim.api.nvim_create_buf(false, true))
     self.blame_window = vim.api.nvim_get_current_win()
+    vim.api.nvim_exec_autocmds(
+        "User",
+        { pattern = "BlameViewOpened", modeline = false, data = "window" }
+    )
 
     local width = utils.longest_string_in_array(blame_lines) + 8
     vim.api.nvim_win_set_width(0, width)
@@ -223,6 +227,10 @@ function WindowView:close(cleanup)
             vim.api.nvim_win_close(self.blame_window, true)
         end
 
+        vim.api.nvim_exec_autocmds(
+            "User",
+            { pattern = "BlameClosed", modeline = false, data = "window" }
+        )
         self.original_window = nil
         self.blame_window = nil
         self.blamed_lines = nil

@@ -7,8 +7,8 @@ local formats = require("blame.formats.default_formats")
 ---@class BlameView
 ---@field new fun(self, config:Config) : BlameView
 ---@field open fun(self, lines: Porcelain[])
----@field is_open fun(): boolean
----@field close fun(cleanup: boolean)
+---@field is_open fun(self): boolean
+---@field close fun(self, cleanup: boolean)
 
 ---@alias FormatFn fun(line_porcelain: Porcelain, config:Config, idx:integer):LineWithHl
 
@@ -64,26 +64,34 @@ local function open(blame_view)
     end)
 end
 
-local M = {}
+---@class Blame
+---@field last_opened_view nil | BlameView
+local M = {
+    last_opened_view = nil,
+}
+
+---@return boolean | nil
+M.is_open = function()
+    return M.last_opened_view ~= nil and M.last_opened_view:is_open()
+end
 
 ---@param setup_args Config | nil
 M.setup = function(setup_args)
     config = vim.tbl_deep_extend("force", config, setup_args or {})
 
     local blame_view = config.views.default:new(config)
-    local last_opened_view = nil
 
     vim.api.nvim_create_user_command("BlameToggle", function(args)
         config.ns_id = vim.api.nvim_create_namespace("blame_ns")
 
-        if last_opened_view ~= nil and last_opened_view:is_open() then
-            last_opened_view:close(false)
-            last_opened_view = nil
+        if M.is_open() then
+            M.last_opened_view:close(false)
+            M.last_opened_view = nil
         else
             local arg = args.args == "" and "default" or args.args
             blame_view = config.views[arg]:new(config)
             open(blame_view)
-            last_opened_view = blame_view
+            M.last_opened_view = blame_view
         end
     end, {
         nargs = "?",

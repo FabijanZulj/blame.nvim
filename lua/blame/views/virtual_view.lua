@@ -45,6 +45,11 @@ function VirtualView:open(porcelain_lines)
             }
         )
     end
+
+    vim.api.nvim_exec_autocmds(
+        "User",
+        { pattern = "BlameViewOpened", modeline = false, data = "virtual" }
+    )
     self.isopen = true
 end
 
@@ -76,6 +81,10 @@ function VirtualView:close()
         self.config.ns_id,
         0,
         -1
+    )
+    vim.api.nvim_exec_autocmds(
+        "User",
+        { pattern = "BlameViewClosed", modeline = false, data = "virtual" }
     )
     self.isopen = false
 end

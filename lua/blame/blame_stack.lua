@@ -5,7 +5,7 @@ local mappings = require("blame.mappings")
 
 ---@class BlameStack
 ---@field config Config
----@field blame_view BlameView
+---@field blame_view WindowView
 ---@field git_client Git
 ---@field stack_buffer integer
 ---@field stack_info_float_win integer
@@ -182,6 +182,18 @@ function BlameStack:push(commit)
         vim.bo[self.stack_buffer].ft = vim.bo[self.original_buffer].ft
         mappings.set_keymap("n", "stack_pop", function()
             self:pop()
+        end, {
+            buffer = self.stack_buffer,
+            nowait = true,
+            silent = true,
+            noremap = true,
+        }, self.config)
+
+        mappings.set_keymap("n", "stack_push", function()
+            local row, _ =
+                unpack(vim.api.nvim_win_get_cursor(self.original_window))
+            local c = self.blame_view.blamed_lines[row]
+            self:push(c)
         end, {
             buffer = self.stack_buffer,
             nowait = true,

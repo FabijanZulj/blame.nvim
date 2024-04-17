@@ -229,7 +229,7 @@ function WindowView:close(cleanup)
 
         vim.api.nvim_exec_autocmds(
             "User",
-            { pattern = "BlameClosed", modeline = false, data = "window" }
+            { pattern = "BlameViewClosed", modeline = false, data = "window" }
         )
         self.original_window = nil
         self.blame_window = nil

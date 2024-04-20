@@ -61,6 +61,8 @@ local function open(blame_view)
             local parsed_blames = porcelain_parser.parse_porcelain(data)
             blame_view:open(parsed_blames)
         end)
+    end, function(err)
+        vim.notify(err, vim.log.levels.INFO)
     end)
 end
 

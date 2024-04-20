@@ -159,3 +159,32 @@ It is also possible to implement your custom view. To implement a custom view yo
 ```
 And add it to the config field table `views`
 See 'blame.views.window_view' and 'blame.views.virtual_view' for examples
+
+### Events
+These user events are emitted
+- BlameViewOpened
+- BlameViewClosed
+
+So you can do something like this:
+*there are some conflicts with some winbar plugins, in this case barbecue is toggled*
+```lua
+vim.api.nvim_create_autocmd("User", {
+    pattern = "BlameViewOpened",
+    callback = function(event)
+        local blame_type = event.data
+        if blame_type == "window" then
+            require("barbecue.ui").toggle(false)
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("User", {
+    pattern = "BlameViewClosed",
+    callback = function(event)
+        local blame_type = event.data
+        if blame_type == "window" then
+            require("barbecue.ui").toggle(true)
+        end
+    end,
+})
+```

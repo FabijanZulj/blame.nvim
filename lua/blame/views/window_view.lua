@@ -196,6 +196,12 @@ function WindowView:update_opened_blame_view(blame_lines, lines_with_hl)
             not value,
             { win = self.blame_window }
         )
+
+        vim.api.nvim_set_option_value(
+            option,
+            not value,
+            { win = self.original_window }
+        )
     end
 
     scroll_to_same_position(self.original_window, self.blame_window)
@@ -207,6 +213,12 @@ function WindowView:update_opened_blame_view(blame_lines, lines_with_hl)
             value,
             { win = self.blame_window }
         )
+
+        vim.api.nvim_set_option_value(
+            option,
+            value,
+            { win = self.original_window }
+        )
     end
 end
 
@@ -215,13 +227,15 @@ function WindowView:close(cleanup)
         vim.api.nvim_del_augroup_by_name("NvimBlame")
         self.blame_stack_client:close()
 
-        --Reset options
-        for option, _ in pairs(blame_enabled_options) do
-            vim.api.nvim_set_option_value(
-                option,
-                self.original_options[option],
-                { win = self.original_window }
-            )
+        --if original window still present *Reset options*
+        if vim.api.nvim_win_is_valid(self.original_window) then
+            for option, _ in pairs(blame_enabled_options) do
+                vim.api.nvim_set_option_value(
+                    option,
+                    self.original_options[option],
+                    { win = self.original_window }
+                )
+            end
         end
         if not cleanup then
             vim.api.nvim_win_close(self.blame_window, true)

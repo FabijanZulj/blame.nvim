@@ -11,7 +11,7 @@ local M = {}
 ---@field committer_tz string
 ---@field filename string
 ---@field hash string
----@field previous string
+---@field previous string|nil
 ---@field summary string
 ---@field content string
 

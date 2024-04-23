@@ -279,24 +279,34 @@ function BlameStack:close()
     self.commit_stack = {}
 end
 
+---Get hash and filepath for (previous) commit
+---@param commit Porcelain
+---@param prev boolean should show previous commit
+---@return string hash, string filepath
+function BlameStack:get_hash_and_filepath(commit, prev)
+    local hash, filepath
+    if prev then
+        if commit.previous then
+            hash, filepath = commit.previous:match("(.-) (.+)")
+        else
+            hash = commit.hash .. "^"
+        end
+    else
+        hash = commit.hash
+    end
+    return hash, filepath or commit.filename or self.file_path
+end
+
 ---@param commit Porcelain
 ---@param prev boolean should show previous commit
 ---@param cb fun(any) callback on blame command end
 ---@param err_cb nil | fun(err) callback on error blame command
 function BlameStack:get_blame_for_commit(commit, prev, cb, err_cb)
-    local filepath = commit.filename or self.file_path
-    local previous
-    if prev then
-        if commit.previous then
-            previous, filepath = unpack(vim.split(commit.previous, " "))
-        else
-            previous = commit.hash .. "^"
-        end
-    end
+    local hash, filepath = self:get_hash_and_filepath(commit, prev)
     self.git_client:blame(
         filepath,
         self.git_root,
-        previous or commit.hash,
+        hash,
         function(data)
             vim.schedule(function()
                 local parsed_blames = porcelain_parser.parse_porcelain(data)
@@ -320,19 +330,11 @@ end
 ---@param cb fun(any) callback on show command end
 ---@param err_cb nil | fun(err) callback on error show command
 function BlameStack:get_show_file_content(commit, prev, cb, err_cb)
-    local filepath = commit.filename or self.file_path
-    local previous
-    if prev then
-        if commit.previous then
-            previous, filepath = unpack(vim.split(commit.previous, " "))
-        else
-            previous = commit.hash .. "^"
-        end
-    end
+    local hash, filepath = self:get_hash_and_filepath(commit, prev)
     self.git_client:show(
         filepath,
         self.git_root,
-        prev and previous or commit.hash,
+        hash,
         function(file_content)
             vim.schedule(function()
                 -- most of the time empty line is inserted from git-show. Might create issues but for now this crude check works

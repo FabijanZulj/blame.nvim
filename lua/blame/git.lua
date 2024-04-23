@@ -22,9 +22,11 @@ function Git:blame(filename, cwd, commit, callback, err_cb)
         "--no-pager",
         "blame",
         "--line-porcelain",
-        commit or "@",
         filename,
     }
+    if commit ~= nil then
+        table.insert(blame_command, 5, commit)
+    end
     local data
     local err_data
     vim.fn.jobstart(blame_command, {

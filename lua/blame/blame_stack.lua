@@ -74,12 +74,11 @@ function BlameStack:push(commit)
 
             self.blame_view:open(blame_lines)
         end)
-    end, function(err)
+    end, function()
         vim.notify(
             "Cannot go to previous commit, might be the initial commit for the file",
             vim.log.levels.INFO
         )
-        vim.notify(err, vim.log.levels.DEBUG)
     end)
 end
 
@@ -303,26 +302,20 @@ end
 ---@param err_cb nil | fun(err) callback on error blame command
 function BlameStack:get_blame_for_commit(commit, prev, cb, err_cb)
     local hash, filepath = self:get_hash_and_filepath(commit, prev)
-    self.git_client:blame(
-        filepath,
-        self.git_root,
-        hash,
-        function(data)
-            vim.schedule(function()
-                local parsed_blames = porcelain_parser.parse_porcelain(data)
-                if cb ~= nil then
-                    cb(parsed_blames)
-                end
-            end)
-        end,
-        function(err)
-            if err_cb then
-                err_cb(err)
-            else
-                vim.notify(err, vim.log.levels.INFO)
+    self.git_client:blame(filepath, self.git_root, hash, function(data)
+        vim.schedule(function()
+            local parsed_blames = porcelain_parser.parse_porcelain(data)
+            if cb ~= nil then
+                cb(parsed_blames)
             end
+        end)
+    end, function(err)
+        if err_cb then
+            err_cb(err)
+        else
+            vim.notify(err, vim.log.levels.INFO)
         end
-    )
+    end)
 end
 
 ---@param commit Porcelain
@@ -331,30 +324,24 @@ end
 ---@param err_cb nil | fun(err) callback on error show command
 function BlameStack:get_show_file_content(commit, prev, cb, err_cb)
     local hash, filepath = self:get_hash_and_filepath(commit, prev)
-    self.git_client:show(
-        filepath,
-        self.git_root,
-        hash,
-        function(file_content)
-            vim.schedule(function()
-                -- most of the time empty line is inserted from git-show. Might create issues but for now this crude check works
-                if file_content[#file_content] == "" then
-                    table.remove(file_content)
-                end
-
-                if cb ~= nil then
-                    cb(file_content)
-                end
-            end)
-        end,
-        function(err)
-            if err_cb then
-                err_cb(err)
-            else
-                vim.notify(err, vim.log.levels.INFO)
+    self.git_client:show(filepath, self.git_root, hash, function(file_content)
+        vim.schedule(function()
+            -- most of the time empty line is inserted from git-show. Might create issues but for now this crude check works
+            if file_content[#file_content] == "" then
+                table.remove(file_content)
             end
+
+            if cb ~= nil then
+                cb(file_content)
+            end
+        end)
+    end, function(err)
+        if err_cb then
+            err_cb(err)
+        else
+            vim.notify(err, vim.log.levels.INFO)
         end
-    )
+    end)
 end
 
 return BlameStack

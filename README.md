@@ -16,13 +16,19 @@ _Same commits are highlighted in the same color_
 
 ```lua
 {
-  "FabijanZulj/blame.nvim",
-  config = function()
-    require("blame").setup()
-  end
+  'FabijanZulj/blame.nvim',
 }
 ```
-*setup() must be called*
+
+### Activating additional blame options
+```lua
+{
+  'FabijanZulj/blame.nvim',
+  opts = {
+    blame_options = { '-w' },
+  },
+}
+```
 
 ## Usage
 The following commands are used:
@@ -47,6 +53,7 @@ Default config:
     merge_consecutive = false,
     max_summary_width = 30,
     colors = nil,
+    blame_options = nil,
     commit_detail_view = "vsplit",
     format_fn = formats.commit_date_author_fn,
     mappings = {
@@ -66,6 +73,7 @@ These are the fields you can configure by passing them to the `require('blame').
 - `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
 - `max_summary_width` - If date_message is used, cut the summary if it excedes this number of characters
 - `colors` - list of RGB strings to use instead of randomly generated RGBs for highlights
+- `blame_options` - list of blame options to use for git blame. If nil, then no options are used
 - `commit_detail_view` - string - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
 - `format_fn` - format function that is used for processing of porcelain lines. See below for details
   ( built-in: `("blame.formats.default_formats").date_message` and `("blame.formats.default_formats").commit_date_author_fn` )

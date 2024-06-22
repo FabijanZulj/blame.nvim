@@ -25,6 +25,7 @@ local formats = require("blame.formats.default_formats")
 ---@field merge_consecutive boolean Merge consecutive commits and don't repeat
 ---@field virtual_style 'float' | 'right_align' Style of the virtual view
 ---@field colors string[] | nil List of colors to use for highlights. If nill will use random RGB
+---@field blame_options string[] | nil List of blame options to use for git blame. If nil will use no options
 ---@field format_fn FormatFn Function that formats the output, default: require("blame.formats.default_formats").date_message
 ---@field max_summary_width number Max width of the summary in 'date_summary' format
 ---@field commit_detail_view 'current' | 'tab' | 'vsplit' | 'split'
@@ -40,6 +41,7 @@ local config = {
     merge_consecutive = false,
     max_summary_width = 30,
     colors = nil,
+    blame_options = nil,
     format_fn = formats.commit_date_author_fn,
     commit_detail_view = "vsplit",
     mappings = {

@@ -341,6 +341,11 @@ function WindowView:show_full_commit()
     local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
     local commit = self.blamed_lines[row]
     local view = self.config.commit_detail_view or "tab"
+
+    local err_cb = function(err)
+        vim.notify(err, vim.log.levels.INFO)
+    end
+
     self.git_client:show(
         nil,
         vim.fn.getcwd(),
@@ -378,7 +383,7 @@ function WindowView:show_full_commit()
                     )
                 end
             end)
-        end
+        end, err_cb
     )
 end
 

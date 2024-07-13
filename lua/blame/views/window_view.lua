@@ -168,6 +168,7 @@ function WindowView:open(lines)
         vim.api.nvim_win_get_buf(self.original_window)
     )
     local cwd = vim.fn.expand("%:p:h")
+    self.cwd = cwd
     self.blame_stack_client =
         BlameStack:new(self.config, self, self.original_window, file_path, cwd)
 end
@@ -343,7 +344,7 @@ function WindowView:show_full_commit()
     local view = self.config.commit_detail_view or "tab"
     self.git_client:show(
         nil,
-        vim.fn.getcwd(),
+        self.cwd,
         commit.hash,
         function(show_output)
             vim.schedule(function()

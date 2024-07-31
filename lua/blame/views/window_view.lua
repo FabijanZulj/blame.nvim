@@ -286,16 +286,6 @@ function WindowView:setup_keybinds(buff)
 
     mappings.set_keymap(
         "n",
-        "stack_push",
-        function()
-            self:blame_stack_push()
-        end,
-        { buffer = buff, nowait = true, silent = true, noremap = true },
-        self.config
-    )
-
-    mappings.set_keymap(
-        "n",
         "stack_pop",
         function()
             self:blame_stack_pop()

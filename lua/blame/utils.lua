@@ -1,6 +1,6 @@
 local M = {}
 
----Calculates the longest string in the string[]Calculates the longest string in the string[]Calculates the longest string in the string[]Calculates the longest string in the string[]Calculates the longest string in the string[]Calculates the longest string in the string[]Calculates the longest string in the string[]Calculates the longest string in the string[]
+---Calculates the longest string in the string[]
 ---@param string_array string[]
 ---@return integer
 M.longest_string_in_array = function(string_array)

@@ -38,7 +38,7 @@ Default config:
 ```lua
 {
     date_format = "%d.%m.%Y",
-    virtual_style = "right",
+    virtual_style = "right_align",
     views = {
         window = window_view,
         virtual = virtual_view,

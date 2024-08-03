@@ -22,6 +22,7 @@ local formats = require("blame.formats.default_formats")
 ---@class Config
 ---@field date_format? string Format of the output date
 ---@field views table<string, BlameView>
+---@field focus_blame boolean Focus on the blame window when it's opened as well as blame stack push/pop
 ---@field merge_consecutive boolean Merge consecutive commits and don't repeat
 ---@field virtual_style 'float' | 'right_align' Style of the virtual view
 ---@field colors string[] | nil List of colors to use for highlights. If nill will use random RGB
@@ -38,6 +39,7 @@ local config = {
         virtual = virtual_view,
         default = window_view,
     },
+    focus_blame = true,
     merge_consecutive = false,
     max_summary_width = 30,
     colors = nil,

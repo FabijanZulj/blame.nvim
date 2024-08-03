@@ -9,6 +9,7 @@ local mappings = require("blame.mappings")
 ---@field git_client Git
 ---@field stack_buffer integer
 ---@field stack_info_float_win integer
+---@field blame_window integer
 ---@field original_window integer
 ---@field original_buffer integer
 ---@field git_root string
@@ -18,13 +19,14 @@ local mappings = require("blame.mappings")
 local BlameStack = {}
 
 ---@return BlameStack
-function BlameStack:new(config, blame_view, original_window, file_path, cwd)
+function BlameStack:new(config, blame_view, file_path, cwd)
     local o = {}
     setmetatable(o, { __index = self })
 
     o.config = config
     o.blame_view = blame_view
-    o.original_window = original_window
+    o.blame_window = blame_view.blame_window
+    o.original_window = blame_view.original_window
     o.original_buffer = vim.api.nvim_win_get_buf(o.original_window)
     o.file_path = file_path
     o.cwd = cwd
@@ -147,6 +149,9 @@ function BlameStack:create_blame_buf()
             vim.schedule(function()
                 self:reset_to_original_buf()
                 self:close()
+                if self.config.focus_blame then
+                    vim.api.nvim_set_current_win(self.blame_window)
+                end
             end)
         end,
         buffer = self.stack_buffer,

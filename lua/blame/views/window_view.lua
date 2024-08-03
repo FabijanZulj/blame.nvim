@@ -106,6 +106,11 @@ function WindowView:open(lines)
 
     -- blame window already opened, updating the content
     if self.blame_window ~= nil then
+        if self.config.focus_blame then
+            vim.api.nvim_set_current_win(self.blame_window)
+        else
+            vim.api.nvim_set_current_win(self.original_window)
+        end
         return self:update_opened_blame_view(blame_lines, lines_with_hl)
     end
 
@@ -162,14 +167,19 @@ function WindowView:open(lines)
             { win = self.blame_window }
         )
     end
-    vim.api.nvim_set_current_win(self.original_window)
+
+    if self.config.focus_blame then
+        vim.api.nvim_set_current_win(self.blame_window)
+    else
+        vim.api.nvim_set_current_win(self.original_window)
+    end
 
     local file_path = vim.api.nvim_buf_get_name(
         vim.api.nvim_win_get_buf(self.original_window)
     )
     local cwd = vim.fn.expand("%:p:h")
     self.blame_stack_client =
-        BlameStack:new(self.config, self, self.original_window, file_path, cwd)
+        BlameStack:new(self.config, self, file_path, cwd)
 end
 
 function WindowView:update_opened_blame_view(blame_lines, lines_with_hl)

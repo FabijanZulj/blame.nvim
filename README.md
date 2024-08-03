@@ -44,6 +44,7 @@ Default config:
         virtual = virtual_view,
         default = window_view,
     },
+    focus_blame = true,
     merge_consecutive = false,
     max_summary_width = 30,
     colors = nil,
@@ -63,6 +64,7 @@ These are the fields you can configure by passing them to the `require('blame').
 - `date_format` - string - Pattern for the date
 - `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file.
 - `views` - views that can be used when toggling blame
+- `focus_blame` - boolean - Focus on the blame window when it's opened as well as blame stack push/pop
 - `merge_consecutive` - boolean - Merge consecutive blames that are from the same commit
 - `max_summary_width` - If date_message is used, cut the summary if it excedes this number of characters
 - `colors` - list of RGB strings to use instead of randomly generated RGBs for highlights

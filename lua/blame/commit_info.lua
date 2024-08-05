@@ -40,6 +40,7 @@ function CommitInfo:open(commit)
             table.insert(formatted_commit, k .. ": " .. v)
         end
     end
+    table.sort(formatted_commit)
     local info_buf = vim.api.nvim_create_buf(false, true)
     local width = utils.longest_string_in_array(formatted_commit) + 5
     local height = #formatted_commit

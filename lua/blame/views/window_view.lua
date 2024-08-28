@@ -79,7 +79,7 @@ function WindowView:add_highlights(lines_with_hl)
             if value.hl then
                 local text_line = lines[line.idx]
                 local startindex, endindex =
-                    string.find(text_line, value.textValue)
+                    string.find(text_line, value.textValue, nil, true)
                 if startindex ~= nil and endindex ~= nil then
                     vim.api.nvim_buf_add_highlight(
                         vim.api.nvim_win_get_buf(self.blame_window),

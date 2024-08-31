@@ -342,6 +342,10 @@ function WindowView:show_full_commit()
     local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
     local commit = self.blamed_lines[row]
     local view = self.config.commit_detail_view or "tab"
+    if type(view) == 'function' then
+        view(commit.hash)
+        return
+    end
 
     local err_cb = function(err)
         vim.notify(err, vim.log.levels.INFO)

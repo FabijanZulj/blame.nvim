@@ -76,7 +76,8 @@ These are the fields you can configure by passing them to the `require('blame').
 - `max_summary_width` - If date_message is used, cut the summary if it excedes this number of characters
 - `colors` - list of RGB strings to use instead of randomly generated RGBs for highlights
 - `blame_options` - list of blame options to use for git blame. If nil, then no options are used
-- `commit_detail_view` - string - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
+- `commit_detail_view` - string or function - "tab"|"split"|"vsplit"|"current" - Open commit details in a new tab, split, vsplit or current buffer
+  `function(commit_hash) ... end` - Calls function and passes commit hash to it
 - `format_fn` - format function that is used for processing of porcelain lines. See below for details
   ( built-in: `("blame.formats.default_formats").date_message` and `("blame.formats.default_formats").commit_date_author_fn` )
 - `mappings` - custom mappings for various actions, you can pass in single or multiple mappings for an action.

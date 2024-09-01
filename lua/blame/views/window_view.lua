@@ -343,7 +343,8 @@ function WindowView:show_full_commit()
     local commit = self.blamed_lines[row]
     local view = self.config.commit_detail_view or "tab"
     if type(view) == 'function' then
-        view(commit.hash)
+        local path = self.blame_stack_client.file_path
+        view(commit.hash, row, path)
         return
     end
 

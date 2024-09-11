@@ -15,14 +15,14 @@ _Same commits are highlighted in the same color_
 ## Installation
 
 ```lua
-{
+return {
   'FabijanZulj/blame.nvim',
 }
 ```
 
 ### Activating additional blame options
 ```lua
-{
+return {
   'FabijanZulj/blame.nvim',
   opts = {
     blame_options = { '-w' },

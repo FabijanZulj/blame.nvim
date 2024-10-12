@@ -15,17 +15,29 @@ _Same commits are highlighted in the same color_
 ## Installation
 
 ```lua
-{
-  'FabijanZulj/blame.nvim',
+return {
+  {
+    "FabijanZulj/blame.nvim",
+    lazy = false,
+    config = function()
+      require('blame').setup {}
+    end,
+  },
 }
 ```
 
 ### Activating additional blame options
 ```lua
-{
-  'FabijanZulj/blame.nvim',
-  opts = {
-    blame_options = { '-w' },
+return {
+  {
+    "FabijanZulj/blame.nvim",
+    lazy = false,
+    config = function()
+      require('blame').setup {}
+    end,
+    opts = {
+      blame_options = { '-w' },
+    },
   },
 }
 ```

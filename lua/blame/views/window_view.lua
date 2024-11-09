@@ -200,37 +200,7 @@ function WindowView:update_opened_blame_view(blame_lines, lines_with_hl)
 
     vim.bo[vim.api.nvim_win_get_buf(self.blame_window)].modifiable = false
 
-    -- Have to disable all options while syncing scroll on update
-    for option, value in pairs(blame_enabled_options) do
-        vim.api.nvim_set_option_value(
-            option,
-            not value,
-            { win = self.blame_window }
-        )
-
-        vim.api.nvim_set_option_value(
-            option,
-            not value,
-            { win = self.original_window }
-        )
-    end
-
     scroll_to_same_position(self.original_window, self.blame_window)
-
-    -- and re-enable them here
-    for option, value in pairs(blame_enabled_options) do
-        vim.api.nvim_set_option_value(
-            option,
-            value,
-            { win = self.blame_window }
-        )
-
-        vim.api.nvim_set_option_value(
-            option,
-            value,
-            { win = self.original_window }
-        )
-    end
 end
 
 function WindowView:close(cleanup)

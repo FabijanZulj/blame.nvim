@@ -80,7 +80,7 @@ Default config:
 ```
 
 These are the fields you can configure by passing them to the `require('blame').setup({})` function:
-- `date_format` - string - Pattern for the date
+- `date_format` - string - Pattern for the date, '%r' for relative date
 - `virtual_style` - "right_align" or "float" - Float moves the virtual text close to the content of the file.
 - `views` - views that can be used when toggling blame
 - `focus_blame` - boolean - Focus on the blame window when it's opened as well as blame stack push/pop

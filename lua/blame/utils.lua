@@ -45,9 +45,9 @@ end
 --- @return string: Formatted date string
 M.format_time = function(format, timestamp)
     if format:find("%%r") then
-        return format:gsub("%%r", relative_time(timestamp))
+        return (format:gsub("%%r", relative_time(timestamp)))
     else
-        return os.date(format, timestamp)
+        return tostring(os.date(format, timestamp))
     end
 end
 

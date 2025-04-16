@@ -1,3 +1,4 @@
+local utils = require("blame.utils")
 local M = {}
 
 ---@type FormatFn
@@ -14,7 +15,7 @@ M.commit_date_author_fn = function(line_porcelain, config, idx)
                     hl = "Comment",
                 },
                 {
-                    textValue = os.date(
+                    textValue = utils.format_time(
                         config.date_format,
                         line_porcelain.committer_time
                     ),
@@ -62,7 +63,7 @@ M.date_message = function(line_porcelain, config, idx)
             idx = idx,
             values = {
                 {
-                    textValue = os.date(
+                    textValue = utils.format_time(
                         config.date_format,
                         line_porcelain.committer_time
                     ),

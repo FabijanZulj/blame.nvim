@@ -195,14 +195,10 @@ function BlameStack:open_stack_info_float()
 
         local lns = vim.api.nvim_buf_get_lines(info_buf, 0, -1, false)
         for idx, v in ipairs(lns) do
-            vim.api.nvim_buf_add_highlight(
-                info_buf,
-                -1,
-                idx == #lns and string.sub(v, 0, 7) or "Comment",
-                idx - 1,
-                0,
-                -1
-            )
+            vim.api.nvim_buf_set_extmark(info_buf, -1, idx - 1, 0, {
+                end_col = -1,
+                hl_group = idx == #lns and string.sub(v, 0, 7) or "Comment",
+            })
         end
 
         local width = utils.longest_string_in_array(lines_text) + 5
@@ -227,14 +223,10 @@ function BlameStack:open_stack_info_float()
     end
     vim.api.nvim_buf_set_lines(info_buf, 0, -1, false, lines_text)
 
-    vim.api.nvim_buf_add_highlight(
-        info_buf,
-        -1,
-        string.sub(lines_text[1], 0, 7),
-        0,
-        0,
-        -1
-    )
+    vim.api.nvim_buf_set_extmark(info_buf, -1, 0, 0, {
+        end_col = -1,
+        hl_group = string.sub(lines_text[1], 0, 7),
+    })
 
     local width = utils.longest_string_in_array(lines_text) + 5
     local height = #self.commit_stack

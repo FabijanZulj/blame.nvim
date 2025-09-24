@@ -57,6 +57,7 @@ Default config:
 {
     date_format = "%d.%m.%Y",
     virtual_style = "right_align",
+    relative_date_if_recent = true -- this is relative only for the latest month
     views = {
         window = window_view,
         virtual = virtual_view,

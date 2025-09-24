@@ -51,4 +51,17 @@ M.format_time = function(format, timestamp)
     end
 end
 
+--- Formats a timestamp as relative if < 1 month, else absolute
+--- @param format string: Format string for absolute date
+--- @param timestamp number: UNIX timestamp
+--- @return string
+M.format_recent_date = function(format, timestamp)
+    local diff = os.time() - timestamp
+    if diff < 2592000 then -- < 30 days
+        return relative_time(timestamp)
+    else
+        return tostring(os.date(format, timestamp))
+    end
+end
+
 return M

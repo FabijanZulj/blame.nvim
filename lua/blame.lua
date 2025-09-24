@@ -33,6 +33,7 @@ local formats = require("blame.formats.default_formats")
 ---@field mappings Mappings
 local config = {
     date_format = "%d.%m.%Y",
+    relative_date_if_recent = true, -- Show relative date if commit is < 1 month
     virtual_style = "right_align",
     views = {
         window = window_view,

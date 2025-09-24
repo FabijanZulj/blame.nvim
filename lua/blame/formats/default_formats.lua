@@ -6,7 +6,13 @@ M.commit_date_author_fn = function(line_porcelain, config, idx)
     local hash = string.sub(line_porcelain.hash, 0, 7)
     local line_with_hl = {}
     local is_commited = hash ~= "0000000"
+    local date_text
     if is_commited then
+        if config.relative_date_if_recent then
+            date_text = utils.format_recent_date(config.date_format, line_porcelain.committer_time)
+        else
+            date_text = utils.format_time(config.date_format, line_porcelain.committer_time)
+        end
         line_with_hl = {
             idx = idx,
             values = {
@@ -15,10 +21,7 @@ M.commit_date_author_fn = function(line_porcelain, config, idx)
                     hl = "Comment",
                 },
                 {
-                    textValue = utils.format_time(
-                        config.date_format,
-                        line_porcelain.committer_time
-                    ),
+                    textValue = date_text,
                     hl = hash,
                 },
                 {

@@ -87,4 +87,16 @@ function Git:show(file_path, cwd, commit, callback, err_cb)
     end
 end
 
+---Execute git blame
+---@param file_path string relative file path
+---@param cwd any where to execute the command
+---@param a_commit string commit hash
+---@param b_commit string commit hash
+---@param callback fun(diff string[]) callback on exiting command with output string
+---@param err_cb nil | fun(err) callback on error
+function Git:diff(file_path, cwd, a_commit, b_commit, callback, err_cb)
+    local diff_command = { "git", "--no-pager", "diff", "--unified=0", a_commit, b_commit, "--", file_path }
+    execute_command(diff_command, cwd, callback, err_cb)
+end
+
 return Git

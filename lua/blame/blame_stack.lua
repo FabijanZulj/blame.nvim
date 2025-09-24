@@ -16,6 +16,8 @@ local mappings = require("blame.mappings")
 ---@field file_path string
 ---@field cwd string
 ---@field commit_stack Porcelain[]
+---@field cursor_stack unknown[]
+---@field original_cursor unknown
 local BlameStack = {}
 
 ---@return BlameStack
@@ -43,6 +45,7 @@ function BlameStack:new(config, blame_view, file_path, cwd)
     end)
 
     o.commit_stack = {}
+    o.cursor_stack = {}
 
     return o
 end
@@ -55,7 +58,7 @@ function BlameStack:push(commit)
         return
     end
 
-    self:get_show_file_content(commit, true, function(file_content)
+    self:get_prev_file_content(commit, function(file_content, line)
         self:get_blame_for_commit(commit, true, function(blame_lines)
             if self.stack_buffer == nil then
                 self:create_blame_buf()
@@ -72,9 +75,16 @@ function BlameStack:push(commit)
                 file_content
             )
             table.insert(self.commit_stack, commit)
+            table.insert(self.cursor_stack, vim.api.nvim_win_get_cursor(self.blame_window))
+            if #self.cursor_stack == 1 then
+                self.original_cursor = self.cursor_stack[1]
+            end
             self:open_stack_info_float()
 
             self.blame_view:open(blame_lines)
+            if line ~= nil then
+                vim.api.nvim_win_set_cursor(self.blame_window, { line, 0 })
+            end
         end)
     end, function()
         vim.notify(
@@ -93,11 +103,11 @@ function BlameStack:pop()
         return
     end
     table.remove(self.commit_stack, nil)
+    local cursor = table.remove(self.cursor_stack, nil)
     self:open_stack_info_float()
-    self:get_show_file_content(
+    self:get_prev_file_content(
         self.commit_stack[#self.commit_stack],
-        true,
-        function(file_content)
+        function(file_content, line)
             vim.api.nvim_buf_set_lines(
                 self.stack_buffer,
                 0,
@@ -112,6 +122,7 @@ function BlameStack:pop()
                 function(blame_lines)
                     vim.schedule(function()
                         self.blame_view:open(blame_lines)
+                        vim.api.nvim_win_set_cursor(self.blame_window, cursor)
                     end)
                 end
             )
@@ -162,6 +173,7 @@ end
 
 function BlameStack:reset_to_original_buf()
     self.commit_stack = {}
+    self.cursor_stack = {}
     vim.api.nvim_set_current_win(self.original_window)
     vim.api.nvim_set_current_buf(self.original_buffer)
     if self.stack_buffer and vim.api.nvim_buf_is_valid(self.stack_buffer) then
@@ -171,6 +183,9 @@ function BlameStack:reset_to_original_buf()
     self:get_blame_for_commit({}, false, function(blame_lines)
         vim.schedule(function()
             self.blame_view:open(blame_lines)
+            if self.original_cursor ~= nil then
+                vim.api.nvim_win_set_cursor(self.blame_window, self.original_cursor)
+            end
         end)
     end)
     self.stack_buffer = nil
@@ -324,20 +339,35 @@ function BlameStack:get_blame_for_commit(commit, prev, cb, err_cb)
 end
 
 ---@param commit Porcelain
----@param prev boolean should show previous commit
----@param cb fun(any) callback on show command end
+---@param cb fun(any, number?) callback on show command end
 ---@param err_cb nil | fun(err) callback on error show command
-function BlameStack:get_show_file_content(commit, prev, cb, err_cb)
-    local hash, filepath = self:get_hash_and_filepath(commit, prev)
+function BlameStack:get_prev_file_content(commit, cb, err_cb)
+    local hash, filepath = self:get_hash_and_filepath(commit, true)
     self.git_client:show(filepath, self.git_root, hash, function(file_content)
-        vim.schedule(function()
+        self.git_client:diff(filepath, self.git_root, hash, commit.hash, function(diff)
             -- most of the time empty line is inserted from git-show. Might create issues but for now this crude check works
             if file_content[#file_content] == "" then
                 table.remove(file_content)
             end
 
-            if cb ~= nil then
-                cb(file_content)
+            local line
+            for _, hunk in ipairs(porcelain_parser.parse_hunks(diff)) do
+                if hunk.curr_line <= commit.original_line and commit.original_line < hunk.curr_line + hunk.curr_count then
+                    line = hunk.prev_line
+                    break
+                end
+            end
+
+            vim.schedule(function()
+                if cb ~= nil then
+                    cb(file_content, line)
+                end
+            end)
+        end, function(err)
+            if err_cb then
+                err_cb(err)
+            else
+                vim.notify(err, vim.log.levels.INFO)
             end
         end)
     end, function(err)

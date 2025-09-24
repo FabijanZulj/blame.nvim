@@ -36,7 +36,7 @@ M.commit_date_author_fn = function(line_porcelain, config, idx)
             idx = idx,
             values = {
                 {
-                    textValue = "Not commited",
+                    textValue = "[[ Not Committed ]]",
                     hl = "Comment",
                 },
             },

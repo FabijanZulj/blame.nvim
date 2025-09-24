@@ -60,7 +60,7 @@ M.format_recent_date = function(format, timestamp)
     if diff < 2592000 then -- < 30 days
         return relative_time(timestamp)
     else
-        return tostring(os.date(format, timestamp))
+        return M.format_time(format, timestamp)
     end
 end
 

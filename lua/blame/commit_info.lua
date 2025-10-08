@@ -25,11 +25,20 @@ function CommitInfo:close(cleanup)
     then
         vim.api.nvim_win_close(self.commit_info_window, true)
     end
+    if self.saved_win and self.saved_pos then
+        vim.api.nvim_set_current_win(self.saved_win)
+        vim.api.nvim_win_set_cursor(self.saved_win, self.saved_pos)
+    end
     self.commit_info_window = nil
+    self.saved_win = nil
+    self.saved_pos = nil
 end
 
 ---@param commit Porcelain
 function CommitInfo:open(commit)
+    self.saved_win = vim.api.nvim_get_current_win()
+    self.saved_pos = vim.api.nvim_win_get_cursor(0)
+
     if self.commit_info_window then
         vim.api.nvim_set_current_win(self.commit_info_window)
         return
@@ -77,7 +86,7 @@ function CommitInfo:open(commit)
 
     vim.api.nvim_create_autocmd({ "BufHidden", "BufUnload" }, {
         callback = function()
-            self:close(true)
+            self:close(false)
         end,
         buffer = info_buf,
         group = vim.api.nvim_create_augroup("NvimBlame", { clear = false }),

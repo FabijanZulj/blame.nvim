@@ -81,13 +81,15 @@ function WindowView:add_highlights(lines_with_hl)
                 local startindex, endindex =
                     string.find(text_line, value.textValue, nil, true)
                 if startindex ~= nil and endindex ~= nil then
-                    vim.api.nvim_buf_add_highlight(
+                    vim.api.nvim_buf_set_extmark(
                         vim.api.nvim_win_get_buf(self.blame_window),
                         self.config.ns_id,
-                        value.hl,
                         line.idx - 1,
                         startindex - 1,
-                        endindex
+                        {
+                            end_col = endindex,
+                            hl_group = value.hl,
+                        }
                     )
                 end
             end

@@ -66,14 +66,10 @@ function CommitInfo:open(commit)
 
     for idx, line in ipairs(formatted_commit) do
         local key_end = string.find(line, ":") - 1
-        vim.api.nvim_buf_add_highlight(
-            info_buf,
-            self.config.ns_id,
-            "Comment",
-            idx - 1,
-            0,
-            key_end
-        )
+        vim.api.nvim_buf_set_extmark(info_buf, self.config.ns_id, idx - 1, 0, {
+            end_col = key_end,
+            hl_group = "Comment",
+        })
     end
 
     mappings.set_keymap(

@@ -44,7 +44,9 @@ return {
 
 ## Usage
 The following commands are used:
-- `BlameToggle [view]` - Toggle the blame with provided view. If no view is provided it opens the `default` (window) view
+- `BlameToggle [view] [options]` - Toggle the blame with provided view and options.
+    - If no view is provided, it opens the `default` (window) view.
+    - If no options are provided, it fall back to `blame_options`.
 
 There are two built-in views:
 - `window` - fugitive style window to the left of the current window

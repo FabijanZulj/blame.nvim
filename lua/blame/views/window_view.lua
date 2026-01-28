@@ -177,7 +177,7 @@ function WindowView:open(lines)
     local file_path = vim.api.nvim_buf_get_name(
         vim.api.nvim_win_get_buf(self.original_window)
     )
-    local cwd = vim.fn.expand("%:p:h")
+    local cwd = vim.fn.fnamemodify(file_path, ":p:h")
     self.cwd = cwd
     self.blame_stack_client =
         BlameStack:new(self.config, self, file_path, cwd)

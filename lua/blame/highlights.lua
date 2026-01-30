@@ -1,10 +1,23 @@
 local M = {}
 
----@return string
-local function random_rgb(custom_colors, color_index)
+-- Utility to pick K maximally distant indices from a palette of M colors
+local function pick_spread_indices(num_colors, num_commits)
+    local indices = {}
+    if num_commits == 1 then
+        table.insert(indices, math.ceil(num_colors / 2))
+    else
+        for i = 1, num_commits do
+            -- Spread indices evenly, centered
+            local pos = (num_colors + 1) * i / (num_commits + 1)
+            table.insert(indices, math.floor(pos + 0.5))
+        end
+    end
+    return indices
+end
+
+local function palette_rgb(custom_colors, palette_indices, color_index)
     if custom_colors and #custom_colors > 0 then
-        -- Use color_index to pick color sequentially, wrap around if needed
-        local index = ((color_index - 1) % #custom_colors) + 1
+        local index = palette_indices[color_index]
         return custom_colors[index]
     else
         local r = math.random(100, 255)
@@ -34,12 +47,17 @@ M.create_highlights_per_hash = function(parsed_lines, config)
     table.sort(sorted_hashes, function(a, b)
         return hash_time_map[a] < hash_time_map[b]
     end)
-    -- Assign colors based on sorted order
+    -- Pick color indices for the number of unique commits
+    local palette_indices = nil
+    if config.colors and #config.colors > 0 then
+        palette_indices = pick_spread_indices(#config.colors, #sorted_hashes)
+    end
+    -- Assign colors based on spread indices
     for color_index, full_hash in ipairs(sorted_hashes) do
         local hash = string.sub(full_hash, 0, 7)
         if vim.fn.hlID(hash) == 0 then
             vim.api.nvim_set_hl(0, hash, {
-                fg = random_rgb(config.colors, color_index),
+                fg = palette_rgb(config.colors, palette_indices, color_index),
                 ctermfg = math.random(0, 255),
             })
         end

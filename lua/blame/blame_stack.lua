@@ -322,7 +322,7 @@ end
 ---@param err_cb nil | fun(err) callback on error blame command
 function BlameStack:get_blame_for_commit(commit, prev, cb, err_cb)
     local hash, filepath = self:get_hash_and_filepath(commit, prev)
-    self.git_client:blame(filepath, self.git_root, hash, function(data)
+    self.git_client:blame(filepath, self.git_root, hash, nil, function(data)
         vim.schedule(function()
             local parsed_blames = porcelain_parser.parse_porcelain(data)
             if cb ~= nil then

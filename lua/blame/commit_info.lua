@@ -25,7 +25,7 @@ function CommitInfo:close(cleanup)
     then
         vim.api.nvim_win_close(self.commit_info_window, true)
     end
-    if self.saved_win and self.saved_pos then
+    if self.saved_win and self.saved_pos and vim.api.nvim_win_is_valid(self.saved_win) then
         vim.api.nvim_set_current_win(self.saved_win)
         vim.api.nvim_win_set_cursor(self.saved_win, self.saved_pos)
     end

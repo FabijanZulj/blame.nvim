@@ -235,7 +235,6 @@ end
 
 function WindowView:close(cleanup)
     if self.blame_window ~= nil then
-        vim.api.nvim_del_augroup_by_name("NvimBlame")
         self.blame_stack_client:close()
 
         --if original window still present *Reset options*
@@ -256,6 +255,8 @@ function WindowView:close(cleanup)
             "User",
             { pattern = "BlameViewClosed", modeline = false, data = "window" }
         )
+
+        vim.api.nvim_del_augroup_by_name("NvimBlame")
         self.original_window = nil
         self.blame_window = nil
         self.blamed_lines = nil
@@ -342,6 +343,9 @@ function WindowView:show_full_commit()
     local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
     local commit = self.blamed_lines[row]
     local view = self.config.commit_detail_view or "tab"
+    if self.commit_info:is_open() == true then
+        self.commit_info:close(false)
+    end
     if type(view) == 'function' then
         local path = self.blame_stack_client.file_path
         view(commit.hash, row, path)

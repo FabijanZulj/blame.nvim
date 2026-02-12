@@ -57,11 +57,12 @@ local config = {
 }
 
 ---@param blame_view BlameView
-local function open(blame_view)
+---@param opts string[] | nil
+local function open(blame_view, opts)
     local filename = vim.api.nvim_buf_get_name(0)
     local cwd = vim.fn.expand("%:p:h")
     local g = git:new(config)
-    g:blame(filename, cwd, nil, function(data)
+    g:blame(filename, cwd, nil, opts, function(data)
         vim.schedule(function()
             local parsed_blames = porcelain_parser.parse_porcelain(data)
             blame_view:open(parsed_blames)
@@ -95,13 +96,22 @@ M.setup = function(setup_args)
             M.last_opened_view:close(false)
             M.last_opened_view = nil
         else
-            local arg = args.args == "" and "default" or args.args
-            blame_view = config.views[arg]:new(config)
-            open(blame_view)
+            local fargs = args.fargs
+            local view_name = "default"
+            local opts = {}
+            for i = 1, #fargs do
+                if fargs[i]:sub(1, 1) == "-" then
+                    table.insert(opts, fargs[i])
+                else
+                    view_name = fargs[i]
+                end
+            end
+            blame_view = config.views[view_name]:new(config)
+            open(blame_view, opts)
             M.last_opened_view = blame_view
         end
     end, {
-        nargs = "?",
+        nargs = "*",
         complete = function()
             local all_views = {}
             for k, _ in pairs(config.views) do

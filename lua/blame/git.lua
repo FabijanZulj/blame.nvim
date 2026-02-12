@@ -48,8 +48,9 @@ end
 ---@param filename string
 ---@param cwd any cwd where to execute the command
 ---@param commit string|nil
+---@param opts string[]|nil
 ---@param callback fun(data: string[]) callback on exiting the command with output string
-function Git:blame(filename, cwd, commit, callback, err_cb)
+function Git:blame(filename, cwd, commit, opts, callback, err_cb)
     local blame_command = {
         "git",
         "--no-pager",
@@ -57,7 +58,12 @@ function Git:blame(filename, cwd, commit, callback, err_cb)
         "--line-porcelain",
         filename,
     }
-    add_blame_options(blame_command, self.config.blame_options)
+
+    local blame_options = self.config.blame_options
+    if opts ~= nil and #opts > 0 then
+        blame_options = opts
+    end
+    add_blame_options(blame_command, blame_options)
     if commit ~= nil then
         table.insert(blame_command, #blame_command - 1, commit)
     end

@@ -95,42 +95,34 @@ M.get_hld_lines_from_porcelain = function(porcelain_lines, config)
             blame_lines[#blame_lines + 1] = line_with_hl
         end
     end
+
+    -- Calculate max width of each column and add padding to match all lengths
+    local max_widths = {}
+    for _, line in ipairs(blame_lines) do
+        for col_idx, value in ipairs(line.values) do
+            local width = vim.fn.strdisplaywidth(value.textValue)
+            if value.textValue == "Not commited" then
+                width = 0
+            end
+            max_widths[col_idx] = math.max(max_widths[col_idx] or 0, width)
+        end
+    end
+
+    for _, line in ipairs(blame_lines) do
+        if #line.values > 0 and line.format ~= "" then
+            local format_parts = {}
+            for col_idx = 1, #line.values do
+                if col_idx == #line.values then
+                    table.insert(format_parts, "%s")
+                else
+                    table.insert(format_parts, string.format("%%-%ds", max_widths[col_idx]))
+                end
+            end
+            line.format = table.concat(format_parts, "  ")
+        end
+    end
+
     return blame_lines
 end
-
----Applies the created highlights to a specified buffer
--- -@param lines string[]
--- -@param config Config
--- M.highlight_same_hash = function(lines, config, buffer)
---     for idx, line in ipairs(lines) do
---         local hash = line:match("^%S+")
---         if hash then
---             -- vim.api.nvim_buf_add_highlight(
---             --     buffer,
---             --     config.ns_id,
---             --     "Comment",
---             --     idx - 1,
---             --     0,
---             --     7
---             -- )
---             -- vim.api.nvim_buf_add_highlight(
---             --     buffer,
---             --     config.ns_id,
---             --     hash,
---             --     idx - 1,
---             --     8,
---             --     -1
---             -- )
---             vim.api.nvim_buf_add_highlight(
---                 buffer,
---                 config.ns_id,
---                 hash,
---                 idx - 1,
---                 0,
---                 -1
---             )
---         end
---     end
--- end
 
 return M

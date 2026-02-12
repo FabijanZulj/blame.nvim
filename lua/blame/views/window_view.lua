@@ -4,6 +4,7 @@ local git = require("blame.git")
 local CommitInfo = require("blame.commit_info")
 local utils = require("blame.utils")
 local mappings = require("blame.mappings")
+local git_browser = require("blame.git_browser")
 
 ---@class WindowView : BlameView
 ---@field config Config
@@ -315,6 +316,26 @@ function WindowView:setup_keybinds(buff)
         { buffer = buff, nowait = true, silent = true, noremap = true },
         self.config
     )
+
+    mappings.set_keymap(
+        "n",
+        "copy_hash",
+        function()
+            self:copy_hash()
+        end,
+        { buffer = buff, nowait = true, silent = true, noremap = true },
+        self.config
+    )
+
+    mappings.set_keymap(
+        "n",
+        "open_in_browser",
+        function()
+            self:open_in_browser()
+        end,
+        { buffer = buff, nowait = true, silent = true, noremap = true },
+        self.config
+    )
 end
 
 ---Setup the commit buffer
@@ -337,6 +358,20 @@ function WindowView:open_commit_info()
     local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
     local commit = self.blamed_lines[row]
     self.commit_info:open(commit)
+end
+
+function WindowView:copy_hash()
+    local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
+    local commit = self.blamed_lines[row]
+    vim.fn.setreg("+", commit.hash)
+    vim.fn.setreg('"', commit.hash)
+    vim.notify("Copied commit hash: " .. commit.hash)
+end
+
+function WindowView:open_in_browser()
+    local row, _ = unpack(vim.api.nvim_win_get_cursor(self.blame_window))
+    local commit = self.blamed_lines[row]
+    git_browser.open_commit_in_browser(commit.hash, self.cwd)
 end
 
 function WindowView:show_full_commit()

@@ -18,6 +18,8 @@ local formats = require("blame.formats.default_formats")
 ---@field stack_pop string | string[]
 ---@field show_commit string | string[]
 ---@field close string | string[]
+---@field copy_hash string | string[]
+---@field open_in_browser string | string[]
 
 ---@class Config
 ---@field date_format? string Format of the output date
@@ -53,6 +55,8 @@ local config = {
         stack_pop = "<BS>",
         show_commit = "<CR>",
         close = { "<esc>", "q" },
+        copy_hash = "y",
+        open_in_browser = "o",
     },
 }
 

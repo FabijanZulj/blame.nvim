@@ -78,6 +78,8 @@ Default config:
         stack_pop = "<BS>",
         show_commit = "<CR>",
         close = { "<esc>", "q" },
+        copy_hash = "y",
+        open_in_browser = "o",
     }
 }
 ```
@@ -124,6 +126,12 @@ To see the full commit data press the `show_commit`(default `<CR>`) mapping on t
     <summary>Details</summary>
     <img width="1495" alt="commit_info_full" src="https://github.com/FabijanZulj/blame.nvim/assets/38249221/84aad831-0c0d-44fe-a38f-6a4d027070c3">
 </details>
+
+#### Copy commit hash
+Press `copy_hash` (default: `y`) on a commit line to copy the full commit hash to the clipboard (both `+` and `"` registers).
+
+#### Open commit in browser
+Press `open_in_browser` (default: `o`) on a commit line to open the commit in your default browser. Supports GitHub, GitLab, and Bitbucket.
 
 ## Advanced
 

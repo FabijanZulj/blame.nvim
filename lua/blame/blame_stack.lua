@@ -203,7 +203,7 @@ function BlameStack:open_stack_info_float()
                     .. " "
                     .. v.author
                     .. " "
-                    .. utils.format_time(self.config.date_format, v.committer_time)
+                    .. utils.format_time(self.config.date_format, v.author_time)
             )
         end
         vim.api.nvim_buf_set_lines(info_buf, 0, -1, false, lines_text)
@@ -237,7 +237,7 @@ function BlameStack:open_stack_info_float()
                 .. " "
                 .. v.author
                 .. " "
-                .. utils.format_time(self.config.date_format, v.committer_time)
+                .. utils.format_time(self.config.date_format, v.author_time)
         )
     end
     vim.api.nvim_buf_set_lines(info_buf, 0, -1, false, lines_text)

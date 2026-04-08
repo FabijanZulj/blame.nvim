@@ -9,9 +9,9 @@ M.commit_date_author_fn = function(line_porcelain, config, idx)
     local date_text
     if is_commited then
         if config.relative_date_if_recent then
-            date_text = utils.format_recent_date(config.date_format, line_porcelain.committer_time)
+            date_text = utils.format_recent_date(config.date_format, line_porcelain.author_time)
         else
-            date_text = utils.format_time(config.date_format, line_porcelain.committer_time)
+            date_text = utils.format_time(config.date_format, line_porcelain.author_time)
         end
         line_with_hl = {
             idx = idx,
@@ -68,7 +68,7 @@ M.date_message = function(line_porcelain, config, idx)
                 {
                     textValue = utils.format_time(
                         config.date_format,
-                        line_porcelain.committer_time
+                        line_porcelain.author_time
                     ),
                     hl = "Comment",
                 },

@@ -403,18 +403,11 @@ function WindowView:show_full_commit()
                     self.original_window
                 )
 
-                if view == "tab" then
-                    vim.cmd("tabnew")
-                elseif view == "vsplit" then
-                    vim.cmd("vsplit")
-                elseif view == "split" then
-                    vim.cmd("split")
-                end
-
                 if view == "current" then
                     vim.api.nvim_win_set_buf(self.original_window, gshow_buff)
                     self:close()
                 else
+                    local original_window = self.original_window
                     mappings.set_keymap("n", "close", ":q<CR>", {
                         buffer = gshow_buff,
                         nowait = true,
@@ -422,6 +415,19 @@ function WindowView:show_full_commit()
                         noremap = true,
                     }, self.config)
                     self:close()
+                    if
+                        original_window
+                        and vim.api.nvim_win_is_valid(original_window)
+                    then
+                        vim.api.nvim_set_current_win(original_window)
+                    end
+                    if view == "tab" then
+                        vim.cmd("tabnew")
+                    elseif view == "vsplit" then
+                        vim.cmd("vsplit")
+                    elseif view == "split" then
+                        vim.cmd("split")
+                    end
                     vim.api.nvim_win_set_buf(
                         vim.api.nvim_get_current_win(),
                         gshow_buff

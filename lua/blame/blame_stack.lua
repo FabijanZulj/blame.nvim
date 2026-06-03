@@ -18,6 +18,7 @@ local mappings = require("blame.mappings")
 ---@field commit_stack Porcelain[]
 ---@field cursor_stack unknown[]
 ---@field original_cursor unknown
+---@field suppress_stack_autocmd boolean
 local BlameStack = {}
 
 ---@return BlameStack
@@ -46,6 +47,7 @@ function BlameStack:new(config, blame_view, file_path, cwd)
 
     o.commit_stack = {}
     o.cursor_stack = {}
+    o.suppress_stack_autocmd = false
 
     return o
 end
@@ -157,7 +159,13 @@ function BlameStack:create_blame_buf()
 
     vim.api.nvim_create_autocmd({ "BufHidden", "BufUnload" }, {
         callback = function()
+            if self.suppress_stack_autocmd then
+                return
+            end
             vim.schedule(function()
+                if self.suppress_stack_autocmd then
+                    return
+                end
                 self:reset_to_original_buf()
                 self:close()
                 if self.config.focus_blame then
@@ -174,11 +182,13 @@ end
 function BlameStack:reset_to_original_buf()
     self.commit_stack = {}
     self.cursor_stack = {}
+    self.suppress_stack_autocmd = true
     vim.api.nvim_set_current_win(self.original_window)
     vim.api.nvim_set_current_buf(self.original_buffer)
     if self.stack_buffer and vim.api.nvim_buf_is_valid(self.stack_buffer) then
         vim.api.nvim_buf_delete(self.stack_buffer, { force = true })
     end
+    self.suppress_stack_autocmd = false
     ---@diagnostic disable-next-line: missing-fields
     self:get_blame_for_commit({}, false, function(blame_lines)
         vim.schedule(function()
@@ -285,6 +295,7 @@ end
 
 function BlameStack:close()
     self:close_stack_info_float()
+    self.suppress_stack_autocmd = true
     if vim.api.nvim_win_is_valid(self.original_window) then
         vim.api.nvim_win_set_buf(self.original_window, self.original_buffer)
     end
@@ -294,6 +305,7 @@ function BlameStack:close()
     then
         vim.api.nvim_buf_delete(self.stack_buffer, { force = true })
     end
+    self.suppress_stack_autocmd = false
     self.stack_buffer = nil
     self.commit_stack = {}
 end
